@@ -20,24 +20,39 @@ struct PopupMessage {
     var Texture2D image;
 };
 
-var Color DrawColor;
+var PrivateWrite IntPoint MousePosition;
+var bool menuOpen;
+var MobileMenuScene scene;
+var PlayerController owner;
+var Color DrawColor, CursorColor;
 var PopupPosition ppPosition;
-var texture NotificationBackground;
+var Texture2D NotificationBackground, CursorTexture;
 var float NotificationWidth, NotificationHeight, NotificationPhaseStartTime, NotificationIconSpacing,
         NotificationShowTime, NotificationHideTime, NotificationHideDelay, NotificationBorderSize;
 var int NotificationPhase;
 var array<PopupMessage> messageQueue;
 var string newLineSeparator;
 
+function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime, optional bool bGamepad) {
+    if (Key == 'MouseX') {
+        MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
+    } else if (Key == 'MouseY') {
+        MousePosition.Y = Clamp(MousePosition.Y - Delta, 0, owner.myHUD.SizeY);
+    }
+
+    return false;
+}
+
 function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f,
         optional bool bGamepad) {
-    local PopupMessage msg;
-
+    `Log("SAInteraction: " $ owner.PlayerInput.GetBind(key));
     if (EventType == IE_Pressed && key == 'F4') {
-        msg.header= "Achievement Completed";
-        msg.body= "Test Pack|The quick brown fox jumped over the lazy dog";
-        msg.image= Texture2D'EditorMaterials.Tick';
-        addMessage(msg);
+        menuOpen= !menuOpen;
+        if (menuOpen) {
+            scene= MobilePlayerInput(owner.PlayerInput).OpenMenuScene(class'AchievementMenuScene');
+        } else {
+            MobilePlayerInput(owner.PlayerInput).CloseMenuScene(scene);
+        }
     }
     return false;
 }
@@ -54,7 +69,18 @@ function addMessage(PopupMessage newMessage) {
 event PostRender(Canvas Canvas) {
     local int i;
     local float IconSize, TempX, TempY, DrawHeight, TimeElapsed, TempWidth, TempHeight;
-    local array<string> parts, wrappedText;
+    local array<string> parts;
+
+    if (menuOpen) {
+        scene.RenderScene(Canvas, 0.1);
+        // Set the canvas position to the mouse position
+        Canvas.SetPos(MousePosition.X, MousePosition.Y);
+        // Set the cursor color
+        Canvas.DrawColor = CursorColor;
+        // Draw the texture on the screen
+        canvas.DrawTileStretched(CursorTexture, CursorTexture.SizeX * 0.2, CursorTexture.SizeY * 0.2, 0, 0, CursorTexture.SizeX, 
+                CursorTexture.SizeY);
+    }
 
     if (NotificationPhase == PHASE_DONE) {
         return;
@@ -167,7 +193,7 @@ event PostRender(Canvas Canvas) {
 
 defaultproperties
 {
-    NotificationBackground=Texture'Wep_1P_Shared_TEX.WEP_Detail_1_D'
+    NotificationBackground=Texture2D'Wep_1P_Shared_TEX.WEP_Detail_1_D'
     //NotificationBackground=Texture'Bkgnd'
     //NotificationBackground=Texture'Engine_MI_Shaders.T_Specular'
     //NotificationBackground=Texture'EngineResources.Black'
@@ -183,8 +209,13 @@ defaultproperties
 
     ppPosition=PP_BOTTOM_CENTER
 
+    OnReceivedNativeInputAxis=axisEvent
     OnReceivedNativeInputKey=keyEvent
 
+    CursorTexture=Texture2D'UI_Managers.LoaderManager_SWF_I10'
+    CursorColor=(R=255,G=255,B=255,A=255)
     DrawColor=(R=255,G=255,B=255,A=255)
     newLineSeparator="|"
+
+    menuOpen=false
 }
