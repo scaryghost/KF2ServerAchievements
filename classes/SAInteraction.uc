@@ -49,8 +49,14 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
     if (EventType == IE_Pressed && key == 'F4') {
         menuOpen= !menuOpen;
         if (menuOpen) {
+            owner.myHUD.bShowHUD= false;
+            owner.IgnoreMoveInput(true);
+            owner.IgnoreLookInput(true);
             scene= MobilePlayerInput(owner.PlayerInput).OpenMenuScene(class'AchievementMenuScene');
         } else {
+            owner.myHUD.bShowHUD= true;
+            owner.IgnoreMoveInput(false);
+            owner.IgnoreLookInput(false);
             MobilePlayerInput(owner.PlayerInput).CloseMenuScene(scene);
         }
     }

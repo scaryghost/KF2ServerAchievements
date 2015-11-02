@@ -1,55 +1,35 @@
 class AchievementMenuScene extends MobileMenuScene;
 
+function InitMenuScene(MobilePlayerInput PlayerInput, int ScreenWidth, int ScreenHeight,
+        bool bIsFirstInitialization) {
+    super.InitMenuScene(PlayerInput, ScreenWidth, ScreenHeight, bIsFirstInitialization);
+
+    `Log("Width= " $ MenuObjects[0].Width $ ", Height= " $ MenuObjects[0].Height $ "Left/Top=" $ Left $ ", " $ Top);
+}
+
 defaultproperties
 {
-    Width=440
-    Height=640
-    Left=0.4
-    Top=0.4
-Begin Object Class=MobileMenuButton Name=Test
-   Tag="Test"
-   Top=400
-   Left=400
-   Width=140
-   Height=24
-   Images(0) = Texture2D'UI_Shared.AssetLib_IDA'
-   Images(1)=Texture2D'UI_Shared.AssetLib_IDA'
-   ImagesUVs(0)=(bCustomCoords=true,U=366,V=140,UL=260,VL=48)
-   ImagesUVs(1)=(bCustomCoords=true,U=366,V=195,UL=260,VL=48)
-   Caption = "Items"
-   CaptionColor = (R=1.0,G=1.0,B=1.0,A=1.0)
-  End Object
-  MenuObjects(0)=Test
+    bRelativeLeft=true;
+    bRelativeTop=true;
+    bRelativeWidth=true;
+    bRelativeHeight=true;
+    Width=0.779688
+    Height=0.847083
+    Left=0.110313
+    Top=0.057916
 
-  Begin Object Class=MobileMenuButton Name=Test2
-   Tag="Test2"
-   Top=400
-   Left=430
-   Width=140
-   Height=24
+    Begin Object class=MobileMenuImage Name=Background
+        bRelativeLeft=true;
+        bRelativeTop=true;
+        bRelativeWidth=true;
+        bRelativeHeight=true;
+        Width=1.0
+        Height=1.0
+        Left=0.0
+        Top=0.0
 
-   Images(0) = Texture2D'UI_Shared.AssetLib_IDA'
-   Images(1)= Texture2D'UI_Shared.AssetLib_IDA'
-   ImagesUVs(0)=(bCustomCoords=true,U=366,V=140,UL=260,VL=48)
-   ImagesUVs(1)=(bCustomCoords=true,U=366,V=195,UL=260,VL=48)
-   Caption = "Equipment"
-   CaptionColor = (R=1.0,G=1.0,B=1.0,A=1.0)
-  End Object
-  MenuObjects(1)=Test2
-  
-  Begin Object Class=MobileMenuButton Name=Test3
-   Tag="Test3"
-   Top=400
-   Left=460
-   Width=140
-   Height=24
-
-   Images(0) = Texture2D'UI_Shared.AssetLib_IDA'
-   Images(1)= Texture2D'UI_Shared.AssetLib_IDA'
-   ImagesUVs(0)=(bCustomCoords=true,U=366,V=140,UL=260,VL=48)
-   ImagesUVs(1)=(bCustomCoords=true,U=366,V=195,UL=260,VL=48)
-   Caption = "Status"
-   CaptionColor = (R=1.0,G=1.0,B=1.0,A=1.0)
-  End Object
-  MenuObjects(2)=Test3
+        Image=Texture2D'Wep_1P_Shared_TEX.T_RefCube_PosZ'
+        ImageDrawStyle=IDS_Stretched
+    End Object
+    MenuObjects.Add(Background)
 }
