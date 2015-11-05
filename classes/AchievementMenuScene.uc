@@ -1,12 +1,5 @@
 class AchievementMenuScene extends MobileMenuScene;
 
-function InitMenuScene(MobilePlayerInput PlayerInput, int ScreenWidth, int ScreenHeight,
-        bool bIsFirstInitialization) {
-    super.InitMenuScene(PlayerInput, ScreenWidth, ScreenHeight, bIsFirstInitialization);
-
-    `Log("Width= " $ MenuObjects[0].Width $ ", Height= " $ MenuObjects[0].Height $ "Left/Top=" $ Left $ ", " $ Top);
-}
-
 defaultproperties
 {
     bRelativeLeft=true;
@@ -32,4 +25,17 @@ defaultproperties
         ImageDrawStyle=IDS_Stretched
     End Object
     MenuObjects.Add(Background)
+
+    Begin Object class=MobileMenuList Name=AchievementsList
+        bRelativeLeft=true;
+        bRelativeTop=true;
+        bRelativeWidth=true;
+        bRelativeHeight=true;
+        Width=0.97
+        Height=0.725
+        Left=-1.0
+        Top=0.0
+        RelativeTo=Background
+    End Object
+    MenuObjects.Add(AchievementsList)
 }

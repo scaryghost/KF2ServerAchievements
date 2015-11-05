@@ -21,7 +21,7 @@ struct PopupMessage {
 };
 
 var PrivateWrite IntPoint MousePosition;
-var bool menuOpen;
+var bool menuOpen, leftButtonPressed;
 var MobileMenuScene scene;
 var PlayerController owner;
 var Color DrawColor, CursorColor;
@@ -33,26 +33,80 @@ var int NotificationPhase;
 var array<PopupMessage> messageQueue;
 var string newLineSeparator;
 
+function bool CheckBounds(MobileMenuObject menuObject) {
+    local float FinalRangeX;
+    local float FinalRangeY;
+
+    if(menuObject.bIsActive == true) {
+        //From the X position add to that the width to create a value starting from the X position to the legnth of the object.
+        FinalRangeX = menuObject.Top + menuObject.Width;
+        //From the Y position add to that the height to create a value starting from the Y position to the height of the object.
+        FinalRangeY = menuObject.Left + menuObject.Height;
+
+        //CheckMousePositionWithinBounds
+
+        menuObject.bIsHighlighted= (MousePosition.X >= menuObject.Top && MousePosition.X <= FinalRangeX && 
+                MousePosition.Y >= menuObject.Left && MousePosition.Y <= FinalRangeY);
+        return menuObject.bIsHighlighted;
+    }
+    return false;
+}
+
+
 function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime, optional bool bGamepad) {
+    local int i;
+
     if (Key == 'MouseX') {
         MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
     } else if (Key == 'MouseY') {
         MousePosition.Y = Clamp(MousePosition.Y - Delta, 0, owner.myHUD.SizeY);
     }
 
+/*
+    if (menuOpen) {
+        for (i=0; i < scene.MenuObjects.Length; i++) {
+//            CheckBounds(scene.MenuObjects[i]);
+            if (leftButtonPressed) {
+                scene.MenuObjects[i].OnTouch(Touch_Moved, MousePosition.X, MousePosition.Y, None, DeltaTime);
+            }
+        }
+    }
+*/
+
     return false;
 }
 
 function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f,
         optional bool bGamepad) {
-    `Log("SAInteraction: " $ owner.PlayerInput.GetBind(key));
+    local MobilePlayerInput mbPlayerInput;
+
+/*
+    local int i;
+
+    leftButtonPressed= (Key == 'LeftMouseButton' && EventType == IE_Pressed);
+    if (leftButtonPressed && menuOpen) {
+        `Log("SAInteraction: Left mouse button pressed!");
+        for (i=0; i < scene.MenuObjects.Length; i++) {
+                `Log("SAInteraction: Touch me!");
+                scene.MenuObjects[i].OnTouch(Touch_Began, MousePosition.X, MousePosition.Y, None, 0);
+        }
+    } else if (Key == 'LeftMouseButton' && EventType == IE_Released && menuOpen) {
+        `Log("SAInteraction: Left mouse button released!");
+        for (i=0; i < scene.MenuObjects.Length; i++) {
+                scene.MenuObjects[i].OnTouch(Touch_Ended, MousePosition.X, MousePosition.Y, None, 0);
+        }
+    }
+*/
+
+    mbPlayerInput= MobilePlayerInput(owner.PlayerInput);
+
     if (EventType == IE_Pressed && key == 'F4') {
         menuOpen= !menuOpen;
         if (menuOpen) {
             owner.myHUD.bShowHUD= false;
             owner.IgnoreMoveInput(true);
             owner.IgnoreLookInput(true);
-            scene= MobilePlayerInput(owner.PlayerInput).OpenMenuScene(class'AchievementMenuScene');
+            scene= mbPlayerInput.OpenMenuScene(class'AchievementMenuScene');
         } else {
             owner.myHUD.bShowHUD= true;
             owner.IgnoreMoveInput(false);
@@ -78,7 +132,7 @@ event PostRender(Canvas Canvas) {
     local array<string> parts;
 
     if (menuOpen) {
-        scene.RenderScene(Canvas, 0.1);
+        MobilePlayerInput(owner.PlayerInput).RenderMenus(Canvas, 0.1f);
         // Set the canvas position to the mouse position
         Canvas.SetPos(MousePosition.X, MousePosition.Y);
         // Set the cursor color
