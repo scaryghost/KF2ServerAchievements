@@ -54,7 +54,7 @@ function bool CheckBounds(MobileMenuObject menuObject) {
 
 
 function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime, optional bool bGamepad) {
-    local int i;
+//    local int i;
 
     if (Key == 'MouseX') {
         MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
