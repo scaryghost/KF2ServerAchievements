@@ -19,6 +19,18 @@ function PostBeginPlay() {
     `Log("Hello World");
 }
 
+function bool CheckReplacement(Actor Other) {
+    local PlayerReplicationInfo pri;
+    local SAReplicationInfo saRepInfo;
+
+    if (PlayerReplicationInfo(Other) != none && Other.Owner != none) {
+        pri= PlayerReplicationInfo(Other);
+        saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
+        saRepInfo.ownerPri= pri;
+    }
+    return super.CheckReplacement(Other);
+}
+
 defaultproperties
 {
     RemoteRole=ROLE_SimulatedProxy
