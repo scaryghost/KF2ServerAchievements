@@ -4,7 +4,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot);
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
 event pickedUpItem(Actor item);
 
-function Achievement lookupAchievement(int index);
-function int numAchievements();
-function int numCompleted();
-function Guid id();
+simulated function Achievement lookupAchievement(int index);
+simulated function int numAchievements();
+simulated function int numCompleted();
+simulated function Guid attrId();
+simulated function String attrName();

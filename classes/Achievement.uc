@@ -1,8 +1,8 @@
 class Achievement extends Object;
 
-var protectedwrite localized string title;
-var protectedwrite localized string description;
-var protectedwrite Texture2D image;
-var protectedwrite int maxProgress;
-var protectedwrite int progress;
-var protectedwrite byte completed;
+var localized string title;
+var localized string description;
+var Texture2D image;
+var int maxProgress;
+var int progress;
+var byte completed;
