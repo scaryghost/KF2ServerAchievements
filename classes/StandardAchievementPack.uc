@@ -1,4 +1,6 @@
-class StandardAchievementPack extends Actor implements(AchievementPack);
+class StandardAchievementPack extends AchievementPack
+    abstract
+    dependson(SAInteraction);
 
 var KFPlayerController ownerController;
 var PlayerController localController;

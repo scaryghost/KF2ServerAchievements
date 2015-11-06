@@ -1,4 +1,8 @@
-class SAMutator extends Engine.Mutator;
+class SAMutator extends Engine.Mutator
+    config(ServerAchievements);
+
+var() config array<string> achievementPackClassNames;
+var private array<class<AchievementPack> > loadedAchievementPacks;
 
 simulated function Tick(float DeltaTime) {
     local PlayerController localController;
@@ -16,7 +20,23 @@ simulated function Tick(float DeltaTime) {
 }
 
 function PostBeginPlay() {
-    `Log("Hello World");
+    local class<AchievementPack> loadedPack;
+    local array<string> uniquePackClassNames;
+    local string it;
+
+    `Log("Attempting to load" @ achievementPackClassNames.Length @ "achievement packs");
+    foreach achievementPackClassNames(it) {
+        class'Arrays'.static.uniqueInsert(uniquePackClassNames, it);
+    }
+    foreach uniquePackClassNames(it) {
+        loadedPack= class<AchievementPack>(DynamicLoadObject(it, class'Class'));
+        if (loadedPack == none) {
+            `Warn("Failed to load achievement pack" @ it);
+        } else {
+            `Log("Successfully loaded" @ it);
+            loadedAchievementPacks.AddItem(loadedPack);
+        }
+    }
 }
 
 function bool CheckReplacement(Actor Other) {
@@ -29,6 +49,27 @@ function bool CheckReplacement(Actor Other) {
         saRepInfo.ownerPri= pri;
     }
     return super.CheckReplacement(Other);
+}
+
+function sendAchievements(SAReplicationInfo saRepInfo) {
+    local class<AchievementPack> it;
+    local AchievementPack pack;
+//    local AchievementDataObject dataObj;
+
+    if (Controller(saRepInfo.Owner) != none && Controller(saRepInfo.Owner).bIsPlayer) {
+//        dataObj= new(None, saRepInfo.steamid64) class'AchievementDataObject';
+        foreach loadedAchievementPacks(it) {
+            pack= Spawn(it, saRepInfo.Owner);
+/*
+            if (useRemoteDatabase) {
+                ServerLink.getAchievementData(saRepInfo.steamid64, pack);
+            } else {
+                pack.deserializeUserData(dataObj.getSerializedData(pack.getPackName()));
+            }
+*/
+            saRepInfo.addAchievementPack(pack);
+        }
+    }
 }
 
 defaultproperties
