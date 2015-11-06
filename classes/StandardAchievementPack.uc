@@ -2,16 +2,19 @@ class StandardAchievementPack extends AchievementPack
     abstract
     dependson(SAInteraction);
 
-var KFPlayerController ownerController;
-var PlayerController localController;
-var array<StandardAchievement> achievements;
-var localized String packName, achvUnlockedMsg, achvInProgressMsg;
-var Texture2D defaultAchievementImage;
-var Guid packGuid;
+var protectedwrite KFPlayerController ownerController;
+var protectedwrite PlayerController localController;
+var protectedwrite array<StandardAchievement> achievements;
+var protectedwrite localized String packName, achvUnlockedMsg, achvInProgressMsg;
+var protectedwrite Texture2D defaultAchievementImage;
+var protectedwrite Guid packGuid;
 
-event killedMonster(Pawn target, class<DamageType> damageType, bool headshot);
-event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
-event pickedUpItem(Actor item);
+simulated event PostBeginPlay() {
+    if (AIController(Owner) != none) {
+        localController= GetALocalPlayerController();
+    }
+    ownerController= KFPlayerController(Owner);
+}
 
 simulated function Achievement lookupAchievement(int index) {
     return achievements[index];
@@ -84,6 +87,27 @@ reliable client function localAchievementCompleted(int index) {
             newMsg.image= usedImage;
             SAInteraction(localController.Interactions[i]).addMessage(newMsg);
             break;
+        }
+    }
+}
+
+function achievementCompleted(int index) {
+    if (achievements[index].completed == 0) {
+        achievements[index].completed= 1;
+        flushToClient(index, achievements[index].progress, achievements[index].completed);
+        localAchievementCompleted(index);
+    }
+}
+
+function addProgress(int index, int offset) {
+    achievements[index].progress+= offset;
+    if (achievements[index].progress >= achievements[index].maxProgress) {
+        achievementCompleted(index);
+    } else if (!achievements[index].noSave) {
+        flushToClient(index, achievements[index].progress, achievements[index].completed);
+        if (achievements[index].progress >= achievements[index].notifyIncrement * (achievements[index].timesNotified + 1) * achievements[index].maxProgress) {
+            notifyProgress(index);
+            achievements[index].timesNotified++;
         }
     }
 }
