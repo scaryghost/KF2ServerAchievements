@@ -1,7 +1,21 @@
 class SAReplicationInfo extends ReplicationInfo;
 
+var private bool initialized;
+var SAMutator mutRef;
 var PlayerReplicationInfo ownerPri;
 var private array<AchievementPack> achievementPacks;
+
+replication {
+    if (Role == ROLE_Authority)
+        ownerPRI;
+}
+
+event Tick(float DeltaTime) {
+    if (!initialized) {
+        mutRef.sendAchievements(self);
+        initialized= true;
+    }
+}
 
 simulated function addAchievementPack(AchievementPack pack) {
     local int i;

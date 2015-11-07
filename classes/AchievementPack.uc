@@ -1,11 +1,20 @@
 class AchievementPack extends Actor
     abstract;
 
-event killedMonster(Pawn target, class<DamageType> damageType, bool headshot);
-event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
+struct Achievement {
+    var string title;
+    var string description;
+    var Texture2D image;
+    var int maxProgress;
+    var int progress;
+    var byte completed;
+};
+
+event killedMonster(Pawn target, class<DamageType> damageType);
+event damagedMonster(int damage, Pawn target, class<DamageType> damageType);
 event pickedUpItem(Actor item);
 
-simulated function Achievement lookupAchievement(int index);
+simulated function lookupAchievement(int index, out Achievement result);
 simulated function int numAchievements();
 simulated function int numCompleted();
 simulated function Guid attrId();

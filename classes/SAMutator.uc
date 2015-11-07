@@ -47,8 +47,30 @@ function bool CheckReplacement(Actor Other) {
         pri= PlayerReplicationInfo(Other);
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
         saRepInfo.ownerPri= pri;
+        saRepInfo.mutRef= self;
     }
     return super.CheckReplacement(Other);
+}
+
+function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation) {
+    local SAReplicationInfo saRepInfo;
+    local array<AchievementPack> achievementPacks;
+    local AchievementPack it;
+
+	if (!super.PreventDeath(Killed, Killer, damageType, HitLocation)) {
+        if (Killer.IsA('KFPlayerController')) {
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killer.PlayerReplicationInfo);
+            
+            if (saRepInfo != none) {
+                saRepInfo.getAchievementPacks(achievementPacks);
+                foreach achievementPacks(it) {
+                    it.killedMonster(Killed, DamageType);
+                }
+            }
+        }
+        return false;
+    }
+    return true;
 }
 
 function sendAchievements(SAReplicationInfo saRepInfo) {

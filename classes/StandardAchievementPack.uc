@@ -2,22 +2,40 @@ class StandardAchievementPack extends AchievementPack
     abstract
     dependson(SAInteraction);
 
+struct StandardAchievement extends Achievement {
+    var localized string title;
+    var localized string description;
+    var float notifyIncrement;
+    var byte timesNotified;
+    var bool noSave;
+};
+
 var protectedwrite KFPlayerController ownerController;
 var protectedwrite PlayerController localController;
 var protectedwrite array<StandardAchievement> achievements;
-var protectedwrite localized String packName, achvUnlockedMsg, achvInProgressMsg;
+var protectedwrite localized String packName;
 var protectedwrite Texture2D defaultAchievementImage;
 var protectedwrite Guid packGuid;
+var private localized String achvUnlockedMsg, achvInProgressMsg;
 
 simulated event PostBeginPlay() {
-    if (AIController(Owner) != none) {
+    if (AIController(Owner) == none) {
         localController= GetALocalPlayerController();
     }
     ownerController= KFPlayerController(Owner);
 }
 
-simulated function Achievement lookupAchievement(int index) {
-    return achievements[index];
+simulated function lookupAchievement(int index, out Achievement result) {
+    result.title= achievements[index].title;
+    result.description= achievements[index].description;
+    if (achievements[index].image == none) {
+        result.image= defaultAchievementImage;
+    } else {
+        result.image= achievements[index].image;
+    }
+    result.maxProgress= achievements[index].maxProgress;
+    result.progress= achievements[index].progress;
+    result.completed= achievements[index].completed;
 }
 
 simulated function int numAchievements() {
@@ -91,7 +109,7 @@ reliable client function localAchievementCompleted(int index) {
     }
 }
 
-function achievementCompleted(int index) {
+function protected achievementCompleted(int index) {
     if (achievements[index].completed == 0) {
         achievements[index].completed= 1;
         flushToClient(index, achievements[index].progress, achievements[index].completed);
@@ -99,7 +117,7 @@ function achievementCompleted(int index) {
     }
 }
 
-function addProgress(int index, int offset) {
+function protected addProgress(int index, int offset) {
     achievements[index].progress+= offset;
     if (achievements[index].progress >= achievements[index].maxProgress) {
         achievementCompleted(index);
