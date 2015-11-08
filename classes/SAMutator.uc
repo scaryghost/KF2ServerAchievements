@@ -52,6 +52,44 @@ function bool CheckReplacement(Actor Other) {
     return super.CheckReplacement(Other);
 }
 
+function NetDamage(int OriginalDamage, out int Damage, Pawn Injured, Controller InstigatedBy, 
+        vector HitLocation, out vector Momentum, class<DamageType> DamageType, Actor DamageCauser) {
+    local SAReplicationInfo saRepInfo;
+    local array<AchievementPack> achievementPacks;
+    local AchievementPack it;
+
+    super.NetDamage(OriginalDamage, Damage, Injured, instigatedBy, HitLocation, Momentum, DamageType, 
+            DamageCauser);
+    if (Injured.IsA('KFPawn_Monster')) {
+        saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy.PlayerReplicationInfo);
+        if (saRepInfo != none) {
+            saRepInfo.getAchievementPacks(achievementPacks);
+            foreach achievementPacks(it) {
+                it.damagedMonster(Damage, Injured, DamageType);
+            }
+        }
+    }
+}
+
+function bool OverridePickupQuery(Pawn Other, class<Inventory> ItemClass, Actor Pickup, out byte bAllowPickup) {
+    local SAReplicationInfo saRepInfo;
+    local array<AchievementPack> achievementPacks;
+    local AchievementPack it;
+    local bool result;
+
+    result= super.OverridePickupQuery(Other, ItemClass, Pickup, bAllowPickup);
+    if (!result || (result && bAllowPickup != 0)) {
+        saRepInfo= class'SAReplicationInfo'.static.findSAri(Other.PlayerReplicationInfo);
+        if (saRepInfo != none) {
+            saRepInfo.getAchievementPacks(achievementPacks);
+            foreach achievementPacks(it) {
+                it.pickedUpItem(Pickup);
+            }
+        }
+    }
+    return result;
+}
+
 function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation) {
     local SAReplicationInfo saRepInfo;
     local array<AchievementPack> achievementPacks;
