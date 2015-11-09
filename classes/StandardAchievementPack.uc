@@ -5,9 +5,9 @@ class StandardAchievementPack extends AchievementPack
 struct StandardAchievement extends Achievement {
     var localized string title;
     var localized string description;
-    var float notifyIncrement;
-    var byte timesNotified;
-    var bool noSave;
+    var float notifyProgress;
+    var bool persistProgress;
+    var byte notifyCount;
 };
 
 var protectedwrite KFPlayerController ownerController;
@@ -16,7 +16,9 @@ var protectedwrite array<StandardAchievement> achievements;
 var protectedwrite localized String packName;
 var protectedwrite Texture2D defaultAchievementImage;
 var protectedwrite Guid packGuid;
+
 var private localized String achvUnlockedMsg, achvInProgressMsg;
+var private const String dataDelim, achvDelim;
 
 simulated event PostBeginPlay() {
     if (AIController(Owner) == none) {
@@ -25,17 +27,56 @@ simulated event PostBeginPlay() {
     ownerController= KFPlayerController(Owner);
 }
 
+function string serializeAchievements() {
+    local string serialized;
+    local array<string> serializedParts;
+    local int i;
+    local StandardAchievement it;
+
+    foreach achievements(it, i) {
+        if (it.completed != 0 || (it.progress != 0 && it.persistProgress)) {
+            serializedParts.AddItem(i $ dataDelim $ it.completed $ dataDelim $ it.progress);
+        }
+    }
+
+    JoinArray(serializedParts, serialized, achvDelim);
+    return serialized;
+}
+
+function deserializeAchievements(string serializedAchvs) {
+    local array<string> serializedParts, achvData;
+    local string it;
+    local int index;
+
+    ParseStringIntoArray(serializedAchvs, serializedParts, achvDelim, true);
+    foreach serializedParts(it) {
+        ParseStringIntoArray(it, achvData, dataDelim, true);
+        if (achvData.Length == 3) {
+            index= int(achvData[0]);
+            achievements[index].completed= byte(achvData[1]);
+            achievements[index].progress= int(achvData[2]);
+            flushToClient(index, achievements[index].progress, achievements[index].completed);
+
+            if (achievements[index].completed == 0 && achievements[index].maxProgress != 0) {
+                achievements[index].notifyCount= achievements[index].progress / 
+                        (achievements[index].maxProgress * achievements[index].notifyProgress);
+            }
+        }
+    }
+}
+
 simulated function lookupAchievement(int index, out Achievement result) {
     result.title= achievements[index].title;
     result.description= achievements[index].description;
+    result.maxProgress= achievements[index].maxProgress;
+    result.progress= achievements[index].progress;
+    result.completed= achievements[index].completed;
+
     if (achievements[index].image == none) {
         result.image= defaultAchievementImage;
     } else {
         result.image= achievements[index].image;
     }
-    result.maxProgress= achievements[index].maxProgress;
-    result.progress= achievements[index].progress;
-    result.completed= achievements[index].completed;
 }
 
 simulated function int numAchievements() {
@@ -121,16 +162,19 @@ function protected addProgress(int index, int offset) {
     achievements[index].progress+= offset;
     if (achievements[index].progress >= achievements[index].maxProgress) {
         achievementCompleted(index);
-    } else if (!achievements[index].noSave) {
+    } else if (achievements[index].persistProgress) {
         flushToClient(index, achievements[index].progress, achievements[index].completed);
-        if (achievements[index].progress >= achievements[index].notifyIncrement * (achievements[index].timesNotified + 1) * achievements[index].maxProgress) {
+        if (achievements[index].progress >= achievements[index].notifyProgress * 
+                    (achievements[index].notifyCount + 1) * achievements[index].maxProgress) {
             notifyProgress(index);
-            achievements[index].timesNotified++;
+            achievements[index].notifyCount++;
         }
     }
 }
 
 defaultproperties
 {
+    dataDelim=","
+    achvDelim=";"
     defaultAchievementImage=Texture2D'EditorMaterials.Tick'
 }

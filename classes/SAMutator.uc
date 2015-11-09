@@ -12,9 +12,7 @@ simulated function Tick(float DeltaTime) {
     if (localController != none) {
         newInteraction= new class'SAInteraction';
         newInteraction.owner= localController;
-        //https://forums.epicgames.com/threads/594381-How-to-set-up-keypress-interactions
-        LocalPlayer(localController.Player).ViewportClient.InsertInteraction(newInteraction, 0);
-        localController.Interactions.AddItem(newInteraction);
+        localController.Interactions.InsertItem(0, newInteraction);
     }
     Disable('Tick');
 }
@@ -111,6 +109,20 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
     return true;
 }
 
+function NotifyLogout(Controller Exiting) {
+    local SAReplicationInfo saRepInfo;
+    local array<AchievementPack> packs;
+    local AchievementPack it;
+
+    super.NotifyLogout(Exiting);
+
+    saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
+    saRepInfo.getAchievementPacks(packs);
+    foreach packs(it) {
+        `Log("Achievement: " $ it.serializeAchievements());
+    }
+}
+
 function sendAchievements(SAReplicationInfo saRepInfo) {
     local class<AchievementPack> it;
     local AchievementPack pack;
@@ -120,6 +132,7 @@ function sendAchievements(SAReplicationInfo saRepInfo) {
 //        dataObj= new(None, saRepInfo.steamid64) class'AchievementDataObject';
         foreach loadedAchievementPacks(it) {
             pack= Spawn(it, saRepInfo.Owner);
+            pack.deserializeAchievements("0,0,4;1,0,199");
 /*
             if (useRemoteDatabase) {
                 ServerLink.getAchievementData(saRepInfo.steamid64, pack);
