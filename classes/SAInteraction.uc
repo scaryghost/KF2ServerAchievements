@@ -20,8 +20,10 @@ struct PopupMessage {
     var Texture2D image;
 };
 
+var private array<AchievementPack> ownerAchvPacks;
+
 var PrivateWrite IntPoint MousePosition;
-var bool menuOpen, leftButtonPressed;
+var bool menuOpen, leftButtonPressed, showHud;
 var MobileMenuScene scene;
 var PlayerController owner;
 var Color DrawColor, CursorColor;
@@ -34,27 +36,28 @@ var array<PopupMessage> messageQueue;
 var string newLineSeparator;
 
 function bool CheckBounds(MobileMenuObject menuObject) {
-    local float FinalRangeX;
-    local float FinalRangeY;
+    local float FinalRangeX, FinalRangeY, actualTop, actualLeft;
 
     if(menuObject.bIsActive == true) {
+        actualTop= scene.Top + menuObject.Top;
+        actualLeft= scene.Left + menuObject.Left;
+
         //From the X position add to that the width to create a value starting from the X position to the legnth of the object.
-        FinalRangeX = menuObject.Top + menuObject.Width;
+        FinalRangeX = actualLeft + menuObject.Width;
         //From the Y position add to that the height to create a value starting from the Y position to the height of the object.
-        FinalRangeY = menuObject.Left + menuObject.Height;
+        FinalRangeY = actualTop + menuObject.Height;
 
         //CheckMousePositionWithinBounds
 
-        menuObject.bIsHighlighted= (MousePosition.X >= menuObject.Top && MousePosition.X <= FinalRangeX && 
-                MousePosition.Y >= menuObject.Left && MousePosition.Y <= FinalRangeY);
+        menuObject.bIsHighlighted= (MousePosition.X >= actualLeft && MousePosition.X <= FinalRangeX && 
+                MousePosition.Y >= actualTop && MousePosition.Y <= FinalRangeY);
         return menuObject.bIsHighlighted;
     }
     return false;
 }
 
-
 function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime, optional bool bGamepad) {
-//    local int i;
+    local MobileMenuObject it;
 
     if (Key == 'MouseX') {
         MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
@@ -62,53 +65,59 @@ function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime
         MousePosition.Y = Clamp(MousePosition.Y - Delta, 0, owner.myHUD.SizeY);
     }
 
-/*
-    if (menuOpen) {
-        for (i=0; i < scene.MenuObjects.Length; i++) {
-//            CheckBounds(scene.MenuObjects[i]);
-            if (leftButtonPressed) {
-                scene.MenuObjects[i].OnTouch(Touch_Moved, MousePosition.X, MousePosition.Y, None, DeltaTime);
+    if (menuOpen && leftButtonPressed) {
+        foreach scene.MenuObjects(it) {
+            if (CheckBounds(it)) {
+                it.OnTouch(Touch_Moved, MousePosition.X, MousePosition.Y, None, DeltaTime);
             }
         }
     }
-*/
 
     return false;
 }
 
 function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f,
         optional bool bGamepad) {
+    local SAReplicationInfo saRepInfo;
+    local MobileMenuObject it;
     local MobilePlayerInput mbPlayerInput;
-
-/*
-    local int i;
 
     leftButtonPressed= (Key == 'LeftMouseButton' && EventType == IE_Pressed);
     if (leftButtonPressed && menuOpen) {
-        `Log("SAInteraction: Left mouse button pressed!");
-        for (i=0; i < scene.MenuObjects.Length; i++) {
-                `Log("SAInteraction: Touch me!");
-                scene.MenuObjects[i].OnTouch(Touch_Began, MousePosition.X, MousePosition.Y, None, 0);
+        foreach scene.MenuObjects(it) {
+            if (CheckBounds(it)) {
+                it.OnTouch(Touch_Began, MousePosition.X, MousePosition.Y, None, 0);
+            }
         }
+        return true;
     } else if (Key == 'LeftMouseButton' && EventType == IE_Released && menuOpen) {
-        `Log("SAInteraction: Left mouse button released!");
-        for (i=0; i < scene.MenuObjects.Length; i++) {
-                scene.MenuObjects[i].OnTouch(Touch_Ended, MousePosition.X, MousePosition.Y, None, 0);
+        foreach scene.MenuObjects(it) {
+            if (CheckBounds(it)) {
+                it.OnTouch(Touch_Ended, MousePosition.X, MousePosition.Y, None, 0);
+            }
         }
+        return true;
     }
-*/
 
     mbPlayerInput= MobilePlayerInput(owner.PlayerInput);
 
     if (EventType == IE_Pressed && key == 'F4') {
         menuOpen= !menuOpen;
         if (menuOpen) {
+            showHud= owner.myHUD.bShowHUD;
             owner.myHUD.bShowHUD= false;
             owner.IgnoreMoveInput(true);
             owner.IgnoreLookInput(true);
             scene= mbPlayerInput.OpenMenuScene(class'AchievementMenuScene');
+
+            if (ownerAchvPacks.Length == 0) {
+                saRepInfo= class'SAReplicationInfo'.static.findSAri(owner.PlayerReplicationInfo);
+                saRepInfo.getAchievementPacks(ownerAchvPacks);
+            }
+            AchievementMenuScene(scene).achievementPacks= ownerAchvPacks;
+            AchievementMenuScene(scene).refreshAchievementLabel();
         } else {
-            owner.myHUD.bShowHUD= true;
+            owner.myHUD.bShowHUD= showHud;
             owner.IgnoreMoveInput(false);
             owner.IgnoreLookInput(false);
             MobilePlayerInput(owner.PlayerInput).CloseMenuScene(scene);
