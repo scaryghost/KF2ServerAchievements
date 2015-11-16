@@ -1,27 +1,29 @@
 class AchievementMenuScene extends MobileMenuScene;
 
+var private MobileMenuList achievementList;
 var private MobileMenuLabel achievementPackLabel;
 var array<AchievementPack> achievementPacks;
 var int currAchvIndex;
 
 event InitMenuScene(MobilePlayerInput PlayerInput, int ScreenWidth, int ScreenHeight, bool bIsFirstInitialization) {
-    local int i;
-    local AchievementListItem item;
-    local MobileMenuList list;
     MenuObjects.AddItem(achievementPackLabel);
+    MenuObjects.AddItem(achievementList);
 
     super.InitMenuScene(PlayerInput, ScreenWidth, ScreenHeight, bIsFirstInitialization);
-
-    list= MobileMenuList(MenuObjects[1]);
-    for(i= 0; i < 32; i++) {
-        item= new class'AchievementListItem';
-        item.id= i;
-        list.AddItem(item);
-    }
 }
 
 function refreshAchievementLabel() {
+    local int i;
+    local AchievementListItem item;
+
     achievementPackLabel.Caption= achievementPacks[currAchvIndex].attrName();
+    achievementList.Items.Length= 0;
+
+    for(i= 0; i < achievementPacks[currAchvIndex].numAchievements(); i++) {
+        item= new class'AchievementListItem';
+        achievementPacks[currAchvIndex].lookupAchievement(i, item.achv);
+        achievementList.AddItem(item);
+    }
 }
 
 function prevAchievement() {
@@ -68,7 +70,7 @@ defaultproperties
     End Object
     MenuObjects.Add(Background)
 
-    Begin Object class=MobileMenuList Name=AchievementsList
+    Begin Object class=MobileMenuList Name=AchievementListSubObj
         bRelativeLeft=true;
         bRelativeTop=true;
         bRelativeWidth=true;
@@ -78,7 +80,7 @@ defaultproperties
         Left=0.05
         Top=0.15
     End Object
-    MenuObjects.Add(AchievementsList)
+    achievementList=AchievementListSubObj
 
     Begin Object class=MobileMenuImage Name=ListBackground
         bRelativeLeft=true;
