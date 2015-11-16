@@ -5,9 +5,19 @@ var array<AchievementPack> achievementPacks;
 var int currAchvIndex;
 
 event InitMenuScene(MobilePlayerInput PlayerInput, int ScreenWidth, int ScreenHeight, bool bIsFirstInitialization) {
+    local int i;
+    local AchievementListItem item;
+    local MobileMenuList list;
     MenuObjects.AddItem(achievementPackLabel);
 
     super.InitMenuScene(PlayerInput, ScreenWidth, ScreenHeight, bIsFirstInitialization);
+
+    list= MobileMenuList(MenuObjects[1]);
+    for(i= 0; i < 32; i++) {
+        item= new class'AchievementListItem';
+        item.id= i;
+        list.AddItem(item);
+    }
 }
 
 function refreshAchievementLabel() {
@@ -57,21 +67,34 @@ defaultproperties
         ImageDrawStyle=IDS_Stretched
     End Object
     MenuObjects.Add(Background)
-/*
+
     Begin Object class=MobileMenuList Name=AchievementsList
         bRelativeLeft=true;
         bRelativeTop=true;
         bRelativeWidth=true;
         bRelativeHeight=true;
         Width=0.97
-        Height=0.725
-        Left=-1.0
-        Top=0.0
-        RelativeTo=Background
-        bIsActive=true
+        Height=0.775
+        Left=0.05
+        Top=0.15
     End Object
     MenuObjects.Add(AchievementsList)
-*/
+
+    Begin Object class=MobileMenuImage Name=ListBackground
+        bRelativeLeft=true;
+        bRelativeTop=true;
+        bRelativeWidth=true;
+        bRelativeHeight=true;
+        Width=0.90
+        Height=0.775
+        Left=0.05
+        Top=0.15
+        Image=Texture2D'EngineResources.Black'
+        ImageColor=(r=1.0,g=1.0,b=1.0,a=0.35)
+        ImageDrawStyle=IDS_Stretched
+    End Object
+    MenuObjects.Add(ListBackground)
+
     Begin Object class=AchievementNextButton Name=NextAchvBtn
         bRelativeLeft=true;
         bRelativeTop=true;
@@ -99,7 +122,7 @@ defaultproperties
         Top=0.037916
         Images[0]=Texture2D'EditorResources.RedSquareTexture'
         Images[1]=Texture2D'Bkgnd'
-        Caption="Prev"
+        Caption="Previous"
         bIsActive=true
     End Object
     MenuObjects.Add(PrevAchvBtn)
