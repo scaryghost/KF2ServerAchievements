@@ -75,10 +75,10 @@ defaultproperties
         bRelativeTop=true;
         bRelativeWidth=true;
         bRelativeHeight=true;
-        Width=0.97
-        Height=0.775
-        Left=0.05
-        Top=0.15
+        Width=0.85
+        Height=0.725
+        Left=0.075
+        Top=0.175
     End Object
     achievementList=AchievementListSubObj
 
