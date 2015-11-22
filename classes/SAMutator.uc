@@ -3,6 +3,7 @@ class SAMutator extends Engine.Mutator
 
 var() config array<string> achievementPackClassNames;
 var private array<class<AchievementPack> > loadedAchievementPacks;
+var private array<AchievementPack> pendingPacks;
 
 simulated function Tick(float DeltaTime) {
     local PlayerController localController;
@@ -21,7 +22,6 @@ function PostBeginPlay() {
     local class<AchievementPack> loadedPack;
     local array<string> uniquePackClassNames;
     local string it;
-    local HttpRequestInterface httpRequest;
 
     `Log("Attempting to load" @ achievementPackClassNames.Length @ "achievement packs");
     foreach achievementPackClassNames(it) {
@@ -37,13 +37,6 @@ function PostBeginPlay() {
         }
     }
 
-    httpRequest= class'HttpFactory'.static.CreateRequest();
-    httpRequest.SetVerb("PUT")
-            .SetHeader("Content-Type", "text/plain")
-            .SetContentAsString("Hello World\n")
-            .SetProcessRequestCompleteDelegate(requestCompleted)
-            .SetURL("http://127.0.0.1:8000")
-            .ProcessRequest();
 }
 
 function bool CheckReplacement(Actor Other) {
@@ -121,40 +114,75 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 function NotifyLogout(Controller Exiting) {
     local SAReplicationInfo saRepInfo;
     local array<AchievementPack> packs;
+    local array<string> queryParts;
+    local string query;
     local AchievementPack it;
+    local HttpRequestInterface httpRequest;
+    local Guid packId;
 
     super.NotifyLogout(Exiting);
 
     saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
     saRepInfo.getAchievementPacks(packs);
     foreach packs(it) {
-        `Log("Achievement: " $ it.serializeAchievements());
+        packId= it.attrId();
+
+        queryParts.Length= 0;
+        queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
+        queryParts.AddItem("action=save");
+        queryParts.AddItem("packid=" $ GetStringFromGuid(packId));
+        queryParts.AddItem("state=" $ it.serializeAchievements());
+
+        JoinArray(queryParts, query, "&");
+
+        httpRequest= class'HttpFactory'.static.CreateRequest();
+        httpRequest.SetVerb("POST")
+                .SetHeader("Content-Type", "text/plain")
+                .SetContentAsString(query $ "\n")
+                .SetURL("http://192.168.0.121:8000/serverachievements/1.0.0")
+                .ProcessRequest();
     }
 }
 
 function sendAchievements(SAReplicationInfo saRepInfo) {
     local class<AchievementPack> it;
     local AchievementPack pack;
-//    local AchievementDataObject dataObj;
+    local array<string> queryParts;
+    local string query;
+    local HttpRequestInterface httpRequest;
+    local Guid packId;
 
     if (Controller(saRepInfo.Owner) != none && Controller(saRepInfo.Owner).bIsPlayer) {
-//        dataObj= new(None, saRepInfo.steamid64) class'AchievementDataObject';
         foreach loadedAchievementPacks(it) {
             pack= Spawn(it, saRepInfo.Owner);
-/*
-            if (useRemoteDatabase) {
-                ServerLink.getAchievementData(saRepInfo.steamid64, pack);
-            } else {
-                pack.deserializeUserData(dataObj.getSerializedData(pack.getPackName()));
-            }
-*/
+            pendingPacks.AddItem(pack);
+
+            packId= pack.attrId();
+
+            queryParts.Length= 0;
+            queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
+            queryParts.AddItem("action=get");
+            queryParts.AddItem("packid=" $ GetStringFromGuid(packId));
+
+            JoinArray(queryParts, query, "&");
+            
+            httpRequest= class'HttpFactory'.static.CreateRequest();
+            httpRequest.SetVerb("POST")
+                .SetHeader("Content-Type", "text/plain")
+                .SetContentAsString(query $ "\n")
+                .SetURL("http://192.168.0.121:8000/serverachievements/1.0.0")
+                .SetProcessRequestCompleteDelegate(getRequestComplete)
+                .ProcessRequest();
             saRepInfo.addAchievementPack(pack);
         }
     }
 }
 
-event requestCompleted(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, 
-        bool bDidSucceed) {
+function getRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
+    if (bDidSucceed) {
+        pendingPacks[0].deserializeAchievements(InHttpResponse.GetContentAsString());
+        pendingPAcks.Remove(0, 1);
+    }
 }
 
 defaultproperties
