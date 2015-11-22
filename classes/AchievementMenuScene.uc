@@ -12,6 +12,10 @@ event InitMenuScene(MobilePlayerInput PlayerInput, int ScreenWidth, int ScreenHe
     super.InitMenuScene(PlayerInput, ScreenWidth, ScreenHeight, bIsFirstInitialization);
 }
 
+function Font GetSceneFont() {
+    return class'Engine'.static.GetSubtitleFont();
+}
+
 function refreshAchievementLabel() {
     local int i;
     local AchievementListItem item;
@@ -76,9 +80,9 @@ defaultproperties
         bRelativeWidth=true;
         bRelativeHeight=true;
         Width=0.85
-        Height=0.725
+        Height=0.60
         Left=0.075
-        Top=0.175
+        Top=0.15
     End Object
     achievementList=AchievementListSubObj
 
@@ -104,11 +108,11 @@ defaultproperties
         bRelativeHeight=true;
         Width=0.15
         Height=0.05
-        Left=0.05
+        Left=0.80
         Top=0.037916
         Images[0]=Texture2D'EditorResources.RedSquareTexture'
-        Images[1]=Texture2D'Bkgnd'
         Caption="Next"
+        CaptionColor=(r=1.0,g=1.0,b=1.0,a=1.0)
         bIsActive=true
     End Object
     MenuObjects.Add(NextAchvBtn)
@@ -120,11 +124,11 @@ defaultproperties
         bRelativeHeight=true;
         Width=0.15
         Height=0.05
-        Left=0.80
+        Left=0.05
         Top=0.037916
         Images[0]=Texture2D'EditorResources.RedSquareTexture'
-        Images[1]=Texture2D'Bkgnd'
         Caption="Previous"
+        CaptionColor=(r=1.0,g=1.0,b=1.0,a=1.0)
         bIsActive=true
     End Object
     MenuObjects.Add(PrevAchvBtn)
@@ -137,7 +141,7 @@ defaultproperties
         Width=0.5
         Height=0.1
         Left=0.3
-        Top=0.037916
+        Top=0.0275
         TextFont=Font'Font_General'
         TextColor=(R=255,G=255,B=255,A=255)
     End Object

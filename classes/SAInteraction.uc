@@ -52,9 +52,8 @@ function bool CheckBounds(MobileMenuObject menuObject) {
         FinalRangeY = actualTop + menuObject.Height;
 
         //CheckMousePositionWithinBounds
-        menuObject.bIsHighlighted= (MousePosition.X >= actualLeft && MousePosition.X <= FinalRangeX && 
+        return (MousePosition.X >= actualLeft && MousePosition.X <= FinalRangeX && 
                 MousePosition.Y >= actualTop && MousePosition.Y <= FinalRangeY);
-        return menuObject.bIsHighlighted;
     }
     return false;
 }
