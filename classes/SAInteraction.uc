@@ -1,4 +1,5 @@
-class SAInteraction extends Interaction;
+class SAInteraction extends Interaction
+    config(ServerAchievements);
 
 const PHASE_DONE= -1;
 const PHASE_SHOWING= 0;
@@ -6,12 +7,12 @@ const PHASE_DELAYING= 1;
 const PHASE_HIDING= 2;
 
 enum PopupPosition {
-    PP_TOP_LEFT,
-    PP_TOP_CENTER,
-    PP_TOP_RIGHT,
-    PP_BOTTOM_LEFT,
     PP_BOTTOM_CENTER,
-    PP_BOTTOM_RIGHT
+    PP_BOTTOM_LEFT,
+    PP_BOTTOM_RIGHT,
+    PP_TOP_CENTER,
+    PP_TOP_LEFT,
+    PP_TOP_RIGHT
 };
 
 struct PopupMessage {
@@ -20,25 +21,28 @@ struct PopupMessage {
     var Texture2D image;
 };
 
-var private array<AchievementPack> ownerAchvPacks;
-
-var PrivateWrite IntPoint MousePosition;
-var bool menuOpen, leftButtonPressed, showHud;
-var MobileMenuScene scene;
+var globalconfig PopupPosition msgPosition;
 var PlayerController owner;
-var Color DrawColor, CursorColor;
-var PopupPosition ppPosition;
-var Texture2D NotificationBackground, CursorTexture;
-var float NotificationWidth, NotificationHeight, NotificationPhaseStartTime, NotificationIconSpacing,
+
+var private array<AchievementPack> ownerAchvPacks;
+var private IntPoint MousePosition;
+var private bool menuOpen, leftButtonPressed, showHud;
+var private MobileMenuScene scene;
+var private Color DrawColor, CursorColor;
+var private Texture2D NotificationBackground, CursorTexture;
+var private float NotificationWidth, NotificationHeight, NotificationPhaseStartTime, NotificationIconSpacing,
         NotificationShowTime, NotificationHideTime, NotificationHideDelay, NotificationBorderSize;
-var int NotificationPhase;
-var array<PopupMessage> messageQueue;
-var string newLineSeparator;
+var private int NotificationPhase;
+var private array<PopupMessage> messageQueue;
+var privatewrite string newLineSeparator;
+
+function Initialized() {
+}
 
 function bool CheckBounds(MobileMenuObject menuObject) {
     local float FinalRangeX, FinalRangeY, actualTop, actualLeft;
 
-    if(menuObject.bIsActive == true) {
+    if(menuObject.bIsActive) {
         actualTop= scene.Top + menuObject.Top;
         actualLeft= scene.Left + menuObject.Left;
 
@@ -192,7 +196,7 @@ event PostRender(Canvas Canvas) {
             break;
     }
 
-    switch(ppPosition) {
+    switch(msgPosition) {
         case PP_TOP_LEFT:
         case PP_BOTTOM_LEFT:
             TempX= 0;
@@ -206,23 +210,23 @@ event PostRender(Canvas Canvas) {
             TempX= canvas.ClipX - NotificationWidth;
             break;
         default:
-            `Warn("Unrecognized position:" @ ppPosition);
+            `Warn("Unrecognized position:" @ msgPosition);
             break;
     }
 
-    switch(ppPosition) {
-        case PP_BOTTOM_LEFT:
+    switch(msgPosition) {
         case PP_BOTTOM_CENTER:
+        case PP_BOTTOM_LEFT:
         case PP_BOTTOM_RIGHT:
             TempY= canvas.ClipY - DrawHeight;
             break;
-        case PP_TOP_LEFT:
         case PP_TOP_CENTER:
+        case PP_TOP_LEFT:
         case PP_TOP_RIGHT:
             TempY= DrawHeight - NotificationHeight;
             break;
         default:
-            `Warn("Unrecognized position:" @ ppPosition);
+            `Warn("Unrecognized position:" @ msgPosition);
             break;
     }
 
@@ -244,6 +248,7 @@ event PostRender(Canvas Canvas) {
     // Offset for desired Spacing between Icon and Text
     TempX += IconSize + NotificationIconSpacing;
 
+    canvas.Font= class'Engine'.static.GetSmallFont();
     canvas.SetPos(TempX, TempY);
     canvas.DrawText(messageQueue[0].header);
 
@@ -262,10 +267,6 @@ event PostRender(Canvas Canvas) {
 defaultproperties
 {
     NotificationBackground=Texture2D'Wep_1P_Shared_TEX.WEP_Detail_1_D'
-    //NotificationBackground=Texture'Bkgnd'
-    //NotificationBackground=Texture'Engine_MI_Shaders.T_Specular'
-    //NotificationBackground=Texture'EngineResources.Black'
-    //NotificationBackground=Texture'ENV_Material_Types_TEX.Metal.Env_Basic_Metal_DIff'
     NotificationWidth=250.0f
     NotificationHeight=70.f
     NotificationShowTime= 0.3
@@ -274,8 +275,6 @@ defaultproperties
     NotificationBorderSize= 7.0
     NotificationIconSpacing= 10.0
     NotificationPhase=PHASE_DONE
-
-    ppPosition=PP_BOTTOM_CENTER
 
     OnReceivedNativeInputAxis=axisEvent
     OnReceivedNativeInputKey=keyEvent

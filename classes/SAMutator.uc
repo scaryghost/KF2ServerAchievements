@@ -21,6 +21,7 @@ function PostBeginPlay() {
     local class<AchievementPack> loadedPack;
     local array<string> uniquePackClassNames;
     local string it;
+    local HttpRequestInterface httpRequest;
 
     `Log("Attempting to load" @ achievementPackClassNames.Length @ "achievement packs");
     foreach achievementPackClassNames(it) {
@@ -35,6 +36,14 @@ function PostBeginPlay() {
             loadedAchievementPacks.AddItem(loadedPack);
         }
     }
+
+    httpRequest= class'HttpFactory'.static.CreateRequest();
+    httpRequest.SetVerb("PUT")
+            .SetHeader("Content-Type", "text/plain")
+            .SetContentAsString("Hello World\n")
+            .SetProcessRequestCompleteDelegate(requestCompleted)
+            .SetURL("http://127.0.0.1:8000")
+            .ProcessRequest();
 }
 
 function bool CheckReplacement(Actor Other) {
@@ -132,7 +141,6 @@ function sendAchievements(SAReplicationInfo saRepInfo) {
 //        dataObj= new(None, saRepInfo.steamid64) class'AchievementDataObject';
         foreach loadedAchievementPacks(it) {
             pack= Spawn(it, saRepInfo.Owner);
-            pack.deserializeAchievements("0,0,4;1,0,199");
 /*
             if (useRemoteDatabase) {
                 ServerLink.getAchievementData(saRepInfo.steamid64, pack);
@@ -143,6 +151,10 @@ function sendAchievements(SAReplicationInfo saRepInfo) {
             saRepInfo.addAchievementPack(pack);
         }
     }
+}
+
+event requestCompleted(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, 
+        bool bDidSucceed) {
 }
 
 defaultproperties
