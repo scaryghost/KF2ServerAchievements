@@ -10,9 +10,19 @@ replication {
         ownerPRI;
 }
 
-event Tick(float DeltaTime) {
+simulated event Tick(float DeltaTime) {
+    local AchievementPack pack;
+
     if (!initialized) {
-        mutRef.sendAchievements(self);
+        if (Role == ROLE_Authority) {
+            mutRef.sendAchievements(self);
+        }
+
+        foreach DynamicActors(class'AchievementPack', pack) {
+            if (pack.Owner == Owner) {
+                addAchievementPack(pack);
+            }
+        }
         initialized= true;
     }
 }
