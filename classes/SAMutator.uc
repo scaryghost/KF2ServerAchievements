@@ -130,16 +130,16 @@ function NotifyLogout(Controller Exiting) {
         queryParts.Length= 0;
         queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
         queryParts.AddItem("action=save");
-        queryParts.AddItem("packid=" $ GetStringFromGuid(packId));
+        queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
         queryParts.AddItem("state=" $ it.serializeAchievements());
 
         JoinArray(queryParts, query, "&");
 
         httpRequest= class'HttpFactory'.static.CreateRequest();
         httpRequest.SetVerb("POST")
-                .SetHeader("Content-Type", "text/plain")
-                .SetContentAsString(query $ "\n")
-                .SetURL("http://192.168.0.121:8000/serverachievements/1.0.0")
+                .SetHeader("Content-Type", "application/x-www-form-urlencoded")
+                .SetContentAsString(query)
+                .SetURL("http://192.168.0.201:8000")
                 .ProcessRequest();
     }
 }
@@ -160,17 +160,17 @@ function sendAchievements(SAReplicationInfo saRepInfo) {
             packId= pack.attrId();
 
             queryParts.Length= 0;
-            queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
             queryParts.AddItem("action=get");
-            queryParts.AddItem("packid=" $ GetStringFromGuid(packId));
+            queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
+            queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
 
             JoinArray(queryParts, query, "&");
             
             httpRequest= class'HttpFactory'.static.CreateRequest();
             httpRequest.SetVerb("POST")
-                .SetHeader("Content-Type", "text/plain")
-                .SetContentAsString(query $ "\n")
-                .SetURL("http://192.168.0.121:8000/serverachievements/1.0.0")
+                .SetHeader("Content-Type", "application/x-www-form-urlencoded")
+                .SetContentAsString(query)
+                .SetURL("http://192.168.0.201:8000")
                 .SetProcessRequestCompleteDelegate(getRequestComplete)
                 .ProcessRequest();
             saRepInfo.addAchievementPack(pack);
@@ -181,7 +181,7 @@ function sendAchievements(SAReplicationInfo saRepInfo) {
 function getRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
     if (bDidSucceed) {
         pendingPacks[0].deserializeAchievements(InHttpResponse.GetContentAsString());
-        pendingPAcks.Remove(0, 1);
+        pendingPacks.Remove(0, 1);
     }
 }
 
