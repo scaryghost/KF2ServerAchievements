@@ -3,7 +3,7 @@ class SAMutator extends Engine.Mutator
 
 var() config array<string> achievementPackClassNames;
 var private array<class<AchievementPack> > loadedAchievementPacks;
-var private array<AchievementPack> pendingPacks;
+var private DataConnection dataConn;
 
 simulated function Tick(float DeltaTime) {
     local PlayerController localController;
@@ -19,24 +19,8 @@ simulated function Tick(float DeltaTime) {
 }
 
 function PostBeginPlay() {
-    local class<AchievementPack> loadedPack;
-    local array<string> uniquePackClassNames;
-    local string it;
-
-    `Log("Attempting to load" @ achievementPackClassNames.Length @ "achievement packs");
-    foreach achievementPackClassNames(it) {
-        class'Arrays'.static.uniqueInsert(uniquePackClassNames, it);
-    }
-    foreach uniquePackClassNames(it) {
-        loadedPack= class<AchievementPack>(DynamicLoadObject(it, class'Class'));
-        if (loadedPack == none) {
-            `Warn("Failed to load achievement pack" @ it);
-        } else {
-            `Log("Successfully loaded" @ it);
-            loadedAchievementPacks.AddItem(loadedPack);
-        }
-    }
-
+    dataConn= Spawn(class'HttpDataConnection');
+    dataConn.loadAchievementPacks(achievementPackClassNames);
 }
 
 function bool CheckReplacement(Actor Other) {
@@ -45,9 +29,10 @@ function bool CheckReplacement(Actor Other) {
 
     if (PlayerReplicationInfo(Other) != none && Other.Owner != none) {
         pri= PlayerReplicationInfo(Other);
+
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
         saRepInfo.ownerPri= pri;
-        saRepInfo.mutRef= self;
+        saRepInfo.dataConn= dataConn;
     }
     return super.CheckReplacement(Other);
 }
@@ -114,75 +99,12 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 function NotifyLogout(Controller Exiting) {
     local SAReplicationInfo saRepInfo;
     local array<AchievementPack> packs;
-    local array<string> queryParts;
-    local string query;
-    local AchievementPack it;
-    local HttpRequestInterface httpRequest;
-    local Guid packId;
 
     super.NotifyLogout(Exiting);
 
     saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
     saRepInfo.getAchievementPacks(packs);
-    foreach packs(it) {
-        packId= it.attrId();
-
-        queryParts.Length= 0;
-        queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
-        queryParts.AddItem("action=save");
-        queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
-        queryParts.AddItem("state=" $ it.serializeAchievements());
-
-        JoinArray(queryParts, query, "&");
-
-        httpRequest= class'HttpFactory'.static.CreateRequest();
-        httpRequest.SetVerb("POST")
-                .SetHeader("Content-Type", "application/x-www-form-urlencoded")
-                .SetContentAsString(query)
-                .SetURL("http://192.168.0.201:8000")
-                .ProcessRequest();
-    }
-}
-
-function sendAchievements(SAReplicationInfo saRepInfo) {
-    local class<AchievementPack> it;
-    local AchievementPack pack;
-    local array<string> queryParts;
-    local string query;
-    local HttpRequestInterface httpRequest;
-    local Guid packId;
-
-    if (Controller(saRepInfo.Owner) != none && Controller(saRepInfo.Owner).bIsPlayer) {
-        foreach loadedAchievementPacks(it) {
-            pack= Spawn(it, saRepInfo.Owner);
-            pendingPacks.AddItem(pack);
-
-            packId= pack.attrId();
-
-            queryParts.Length= 0;
-            queryParts.AddItem("action=get");
-            queryParts.AddItem("steamid=" $ class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(saRepInfo.ownerPri.UniqueId));
-            queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
-
-            JoinArray(queryParts, query, "&");
-            
-            httpRequest= class'HttpFactory'.static.CreateRequest();
-            httpRequest.SetVerb("POST")
-                .SetHeader("Content-Type", "application/x-www-form-urlencoded")
-                .SetContentAsString(query)
-                .SetURL("http://192.168.0.201:8000")
-                .SetProcessRequestCompleteDelegate(getRequestComplete)
-                .ProcessRequest();
-            saRepInfo.addAchievementPack(pack);
-        }
-    }
-}
-
-function getRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
-    if (bDidSucceed) {
-        pendingPacks[0].deserializeAchievements(InHttpResponse.GetContentAsString());
-        pendingPacks.Remove(0, 1);
-    }
+    dataConn.saveAchievementState(saRepInfo.ownerPri.UniqueId, packs);
 }
 
 defaultproperties

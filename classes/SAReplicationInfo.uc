@@ -1,7 +1,7 @@
 class SAReplicationInfo extends ReplicationInfo;
 
 var private bool initialized;
-var SAMutator mutRef;
+var DataConnection dataConn;
 var PlayerReplicationInfo ownerPri;
 var private array<AchievementPack> achievementPacks;
 
@@ -15,7 +15,7 @@ simulated event Tick(float DeltaTime) {
 
     if (!initialized) {
         if (Role == ROLE_Authority) {
-            mutRef.sendAchievements(self);
+            dataConn.spawnAchievementPacks(self);
         }
 
         foreach DynamicActors(class'AchievementPack', pack) {
@@ -23,6 +23,7 @@ simulated event Tick(float DeltaTime) {
                 addAchievementPack(pack);
             }
         }
+
         initialized= true;
     }
 }
