@@ -1,13 +1,29 @@
 class SAMutator extends Engine.Mutator
     config(ServerAchievements);
 
-var() config array<string> achievementPackClassNames;
+var() config array<string> achievementPackClassnames;
+var() config string dataSourceClassname;
+
 var private array<class<AchievementPack> > loadedAchievementPacks;
 var private DataConnection dataConn;
 
 function PostBeginPlay() {
-    dataConn= Spawn(class'HttpDataConnection');
-    dataConn.loadAchievementPacks(achievementPackClassNames);
+    local class<DataConnection> dataSourceClass;
+
+    if (Len(dataSourceClassname) == 0) {
+        `Warn("No data source specified, defaulting to ServerAchievements.FileDataConnection");
+        dataConn= Spawn(class'FileDataConnection');
+    } else {
+        dataSourceClass= class<DataConnection>(DynamicLoadObject(dataSourceClassname, class'Class'));
+        if (dataSourceClass == None) {
+            `Warn("Cannot load DataSource class:" @ dataSourceClassname);
+            `Warn("Defaulting to ServerAchievements.FileDataConnection");
+            dataConn= Spawn(class'FileDataConnection'); 
+        } else {
+            dataConn= Spawn(dataSourceClass);
+        }
+    }
+    dataConn.loadAchievementPacks(achievementPackClassnames);
 }
 
 function bool CheckReplacement(Actor Other) {
