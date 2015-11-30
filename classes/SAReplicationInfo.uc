@@ -12,6 +12,8 @@ replication {
 
 simulated event Tick(float DeltaTime) {
     local AchievementPack pack;
+    local PlayerController localController;
+    local SAInteraction newInteraction;
 
     if (!initialized) {
         if (Role == ROLE_Authority) {
@@ -22,6 +24,13 @@ simulated event Tick(float DeltaTime) {
             if (pack.Owner == Owner) {
                 addAchievementPack(pack);
             }
+        }
+
+        localController= GetALocalPlayerController();
+        if (localController != none) {
+            newInteraction= new class'SAInteraction';
+            newInteraction.owner= localController;
+            localController.Interactions.InsertItem(0, newInteraction);
         }
 
         initialized= true;

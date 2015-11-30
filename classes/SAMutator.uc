@@ -5,19 +5,6 @@ var() config array<string> achievementPackClassNames;
 var private array<class<AchievementPack> > loadedAchievementPacks;
 var private DataConnection dataConn;
 
-simulated function Tick(float DeltaTime) {
-    local PlayerController localController;
-    local SAInteraction newInteraction;
-
-    localController= GetALocalPlayerController();
-    if (localController != none) {
-        newInteraction= new class'SAInteraction';
-        newInteraction.owner= localController;
-        localController.Interactions.InsertItem(0, newInteraction);
-    }
-    Disable('Tick');
-}
-
 function PostBeginPlay() {
     dataConn= Spawn(class'HttpDataConnection');
     dataConn.loadAchievementPacks(achievementPackClassNames);
@@ -27,7 +14,8 @@ function bool CheckReplacement(Actor Other) {
     local PlayerReplicationInfo pri;
     local SAReplicationInfo saRepInfo;
 
-    if (PlayerReplicationInfo(Other) != none && Other.Owner != none) {
+    if (PlayerReplicationInfo(Other) != none && Other.Owner.IsA('PlayerController') && 
+            PlayerController(Other.Owner).bIsPlayer) {
         pri= PlayerReplicationInfo(Other);
 
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
@@ -105,10 +93,4 @@ function NotifyLogout(Controller Exiting) {
     saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
     saRepInfo.getAchievementPacks(packs);
     dataConn.saveAchievementState(saRepInfo.ownerPri.UniqueId, packs);
-}
-
-defaultproperties
-{
-    RemoteRole=ROLE_SimulatedProxy
-    bAlwaysRelevant=true
 }
