@@ -1,5 +1,7 @@
-class HttpDataConnection extends DataConnection;
+class HttpDataConnection extends DataConnection
+    Config(ServerAchievements);
 
+var() config string httpHostname;
 var private array<AchievementPack> pendingPacks;
 
 function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
@@ -24,8 +26,8 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
         httpRequest.SetVerb("POST")
             .SetHeader("Content-Type", "application/x-www-form-urlencoded")
             .SetContentAsString(query)
-            .SetURL("http://192.168.0.201:8000")
-            .SetProcessRequestCompleteDelegate(getRequestComplete)
+            .SetURL("http://" $ httpHostname)
+            .SetProcessRequestCompleteDelegate(retrieveRequestComplete)
             .ProcessRequest();
     }
 }
@@ -52,16 +54,23 @@ function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPac
         httpRequest.SetVerb("POST")
                 .SetHeader("Content-Type", "application/x-www-form-urlencoded")
                 .SetContentAsString(query)
-                .SetURL("http://192.168.0.201:8000")
+                .SetURL("http://" $ httpHostname)
+                .SetProcessRequestCompleteDelegate(saveRequestComplete)
                 .ProcessRequest();
     }
 }
 
-function getRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
-    `Log("Result? " $ bDidSucceed);
-    `Log("State: " $ InHttpResponse.GetContentAsString());
+function saveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
+    if (!bDidSucceed) {
+        `Warn("Error saving achievement to from http server '" $ httpHostname $ "'");
+    }
+}
+
+function retrieveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
     if (bDidSucceed) {
         pendingPacks[0].deserializeAchievements(InHttpResponse.GetContentAsString());
-        pendingPacks.Remove(0, 1);
+    } else {
+        `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'");
     }
+    pendingPacks.Remove(0, 1);
 }
