@@ -8,22 +8,38 @@ var private array<class<AchievementPack> > loadedAchievementPacks;
 var private DataConnection dataConn;
 
 function PostBeginPlay() {
+    local class<AchievementPack> loadedPack;    
+    local array<string> uniqueClassnames;
+    local string it;    
     local class<DataConnection> dataSourceClass;
+
+    `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs");    
+    foreach achievementPackClassnames(it) {
+        class'Arrays'.static.uniqueInsert(uniqueClassnames, it);
+    }
+    foreach uniqueClassnames(it) {
+        loadedPack= class<AchievementPack>(DynamicLoadObject(it, class'Class'));
+        if (loadedPack == none) {
+            `Warn("Failed to load achievement pack" @ it);
+        } else {
+            `Log("Successfully loaded" @ it);
+            loadedAchievementPacks.AddItem(loadedPack);
+        }
+    }    
 
     if (Len(dataSourceClassname) == 0) {
         `Warn("No data source specified, defaulting to ServerAchievements.FileDataConnection");
-        dataConn= Spawn(class'FileDataConnection');
+        dataConn= new class'FileDataConnection';
     } else {
         dataSourceClass= class<DataConnection>(DynamicLoadObject(dataSourceClassname, class'Class'));
         if (dataSourceClass == None) {
             `Warn("Cannot load DataSource class:" @ dataSourceClassname);
             `Warn("Defaulting to ServerAchievements.FileDataConnection");
-            dataConn= Spawn(class'FileDataConnection'); 
+            dataConn= new class'FileDataConnection'; 
         } else {
-            dataConn= Spawn(dataSourceClass);
+            dataConn= new dataSourceClass;
         }
     }
-    dataConn.loadAchievementPacks(achievementPackClassnames);
 }
 
 function bool CheckReplacement(Actor Other) {
@@ -37,6 +53,7 @@ function bool CheckReplacement(Actor Other) {
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
         saRepInfo.ownerPri= pri;
         saRepInfo.dataConn= dataConn;
+        saRepInfo.achievementPackClasses= loadedAchievementPacks;
     }
     return super.CheckReplacement(Other);
 }

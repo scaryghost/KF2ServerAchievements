@@ -1,33 +1,40 @@
 class SAReplicationInfo extends ReplicationInfo;
 
-var private bool initialized;
+var array<class<AchievementPack> > achievementPackClasses;
 var DataConnection dataConn;
 var PlayerReplicationInfo ownerPri;
+
+var private bool initialized;
 var private array<AchievementPack> achievementPacks;
 
 replication {
     if (Role == ROLE_Authority)
-        ownerPRI;
+        ownerPri;
 }
 
 simulated event Tick(float DeltaTime) {
+    local class<AchievementPack> it;
     local AchievementPack pack;
     local PlayerController localController;
     local SAInteraction newInteraction;
 
     if (!initialized) {
         if (Role == ROLE_Authority) {
-            dataConn.spawnAchievementPacks(self);
-        }
-
-        foreach DynamicActors(class'AchievementPack', pack) {
-            if (pack.Owner == Owner) {
-                addAchievementPack(pack);
+            foreach achievementPackClasses(it) {
+                addAchievementPack(Spawn(it, Owner));
             }
+
+            dataConn.retrieveAchievementState(ownerPri.UniqueId, achievementPacks);
         }
 
         localController= GetALocalPlayerController();
         if (localController != none) {
+            foreach DynamicActors(class'AchievementPack', pack) {
+                if (pack.Owner == Owner) {
+                    addAchievementPack(pack);
+                }
+            }
+
             newInteraction= new class'SAInteraction';
             newInteraction.owner= localController;
             localController.Interactions.InsertItem(0, newInteraction);
