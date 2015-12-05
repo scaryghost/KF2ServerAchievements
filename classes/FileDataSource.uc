@@ -1,4 +1,4 @@
-class FileDataConnection extends DataConnection;
+class FileDataSource extends DataSource;
 
 function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
     local String steamIdString;

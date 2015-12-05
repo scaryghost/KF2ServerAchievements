@@ -1,4 +1,4 @@
-class DataConnection extends Object
+class DataSource extends Object
     abstract;
 
 function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);

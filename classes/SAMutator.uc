@@ -5,13 +5,13 @@ var() config array<string> achievementPackClassnames;
 var() config string dataSourceClassname;
 
 var private array<class<AchievementPack> > loadedAchievementPacks;
-var private DataConnection dataConn;
+var private DataSource dataSrc;
 
 function PostBeginPlay() {
     local class<AchievementPack> loadedPack;    
     local array<string> uniqueClassnames;
     local string it;    
-    local class<DataConnection> dataSourceClass;
+    local class<DataSource> dataSourceClass;
 
     `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs");    
     foreach achievementPackClassnames(it) {
@@ -28,16 +28,16 @@ function PostBeginPlay() {
     }    
 
     if (Len(dataSourceClassname) == 0) {
-        `Warn("No data source specified, defaulting to ServerAchievements.FileDataConnection");
-        dataConn= new class'FileDataConnection';
+        `Warn("No data source specified, defaulting to ServerAchievements.FileDataSource");
+        dataSrc= new class'FileDataSource';
     } else {
-        dataSourceClass= class<DataConnection>(DynamicLoadObject(dataSourceClassname, class'Class'));
+        dataSourceClass= class<DataSource>(DynamicLoadObject(dataSourceClassname, class'Class'));
         if (dataSourceClass == None) {
             `Warn("Cannot load DataSource class:" @ dataSourceClassname);
-            `Warn("Defaulting to ServerAchievements.FileDataConnection");
-            dataConn= new class'FileDataConnection'; 
+            `Warn("Defaulting to ServerAchievements.FileDataSource");
+            dataSrc= new class'FileDataSource'; 
         } else {
-            dataConn= new dataSourceClass;
+            dataSrc= new dataSourceClass;
         }
     }
 }
@@ -52,7 +52,7 @@ function bool CheckReplacement(Actor Other) {
 
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
         saRepInfo.ownerPri= pri;
-        saRepInfo.dataConn= dataConn;
+        saRepInfo.dataSrc= dataSrc;
         saRepInfo.achievementPackClasses= loadedAchievementPacks;
     }
     return super.CheckReplacement(Other);
@@ -125,5 +125,5 @@ function NotifyLogout(Controller Exiting) {
 
     saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
     saRepInfo.getAchievementPacks(packs);
-    dataConn.saveAchievementState(saRepInfo.ownerPri.UniqueId, packs);
+    dataSrc.saveAchievementState(saRepInfo.ownerPri.UniqueId, packs);
 }

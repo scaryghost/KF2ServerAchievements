@@ -1,7 +1,7 @@
 class SAReplicationInfo extends ReplicationInfo;
 
 var array<class<AchievementPack> > achievementPackClasses;
-var DataConnection dataConn;
+var DataSource dataSrc;
 var PlayerReplicationInfo ownerPri;
 
 var private bool initialized;
@@ -24,7 +24,7 @@ simulated event Tick(float DeltaTime) {
                 addAchievementPack(Spawn(it, Owner));
             }
 
-            dataConn.retrieveAchievementState(ownerPri.UniqueId, achievementPacks);
+            dataSrc.retrieveAchievementState(ownerPri.UniqueId, achievementPacks);
         }
 
         localController= GetALocalPlayerController();

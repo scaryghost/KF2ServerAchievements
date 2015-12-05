@@ -1,4 +1,4 @@
-class HttpDataConnection extends DataConnection
+class HttpDataSource extends DataSource
     Config(ServerAchievements);
 
 var() config string httpHostname;
