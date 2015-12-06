@@ -46,7 +46,7 @@ function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPac
         queryParts.AddItem("steamid=" $ steamIdString);
         queryParts.AddItem("action=save");
         queryParts.AddItem("packguid=" $ PathName(it.class));
-        queryParts.AddItem("state=" $ byteArrayToString(objectState));
+        queryParts.AddItem("state=" $ byteArrayToHexString(objectState));
 
         JoinArray(queryParts, query, "&");
 
@@ -70,7 +70,7 @@ function retrieveRequestComplete(HttpRequestInterface OriginalRequest, HttpRespo
     local array<byte> objectState;
 
     if (bDidSucceed) {
-        stringToByteArray(InHttpResponse.GetContentAsString(), objectState);
+        hexStringToByteArray(InHttpResponse.GetContentAsString(), objectState);
         pendingPacks[0].deserialize(objectState);
     } else {
         `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'");

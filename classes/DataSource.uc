@@ -4,25 +4,36 @@ class DataSource extends Object
 function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
 function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
 
-static function string byteArrayToString(const out array<byte> byteArray) {
-    local byte it;
+static function string byteArrayToHexString(const out array<byte> byteArray) {
+    local byte it, lowBits, highBits;
     local string result;
-    local array<string> stringValues;
 
     foreach byteArray(it) {
-        stringValues.AddItem(string(it));
+        lowBits= it & 0xf;
+        highBits= (it >> 4) & 0xf;
+
+        result$= (Chr(lowBits + (lowBits < 10 ? 48 : 55)) $ Chr(highBits + (highBits < 10 ? 48 : 55)));
     }
 
-    JoinArray(stringValues, result, ",");
     return result;
 }
 
-static function stringToByteArray(string stringValue, out array<byte> byteArray) {
-    local array<string> parts;
-    local string it;
+static function hexStringToByteArray(string stringValue, out array<byte> byteArray) {
+    local string next;
 
-    ParseStringIntoArray(stringValue, parts, ",", true);
-    foreach parts(it) {
-        byteArray.AddItem(byte(it));
+    while(Len(stringValue) != 0) {
+        next= Left(stringValue, 2);
+        byteArray.AddItem(hexCharToInt(Left(next, 1)) | (hexCharToInt(Right(next, 1)) << 4));
+        stringValue= Mid(stringValue, 2);
+    }
+}
+
+static function int hexCharToInt(string hexChar) {
+    if (hexChar >= "a" && hexChar <= "f") {
+        return Asc(hexChar) - 87;
+    } else if (hexChar >= "A" && hexChar <= "F") {
+        return Asc(hexChar) - 55;
+    } else if (hexChar >= "0" && hexChar <= "9") {
+        return Asc(hexChar) - 48;
     }
 }
