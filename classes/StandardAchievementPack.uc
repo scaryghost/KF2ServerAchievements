@@ -18,7 +18,6 @@ var protectedwrite Texture2D defaultAchievementImage;
 var protectedwrite Guid packGuid;
 
 var private localized String achvUnlockedMsg, achvInProgressMsg;
-var private const String dataDelim, achvDelim;
 
 simulated event PostBeginPlay() {
     if (AIController(Owner) == none) {
@@ -38,7 +37,7 @@ function serialize(out array<byte> objectState) {
             objectState.AddItem((it.progress >> 16) & 0xff);
             objectState.AddItem((it.progress >> 24) & 0xff);
         } else {
-            objectState.AddItem(it.completed);
+            objectState.AddItem(it.completed ? 1 : 0);
         }
     }
 }
@@ -56,12 +55,12 @@ function deserialize(const out array<byte> objectState) {
             it.progress= (objectState[i] | (objectState[i + 1] << 8) | (objectState[i + 2] << 16) | (objectState[i + 3] << 24));
             i+= 4;
 
-            it.completed= it.progress >= it.maxProgress ? 1 : 0;
-            if (it.completed == 0 && it.maxProgress != 0 && it.persistProgress) {
+            it.completed= it.progress >= it.maxProgress;
+            if (!it.completed && it.maxProgress != 0 && it.persistProgress) {
                 it.notifyCount= it.progress / (it.maxProgress * it.notifyProgress);
             }
         } else {
-            it.completed= objectState[i];
+            it.completed= (objectState[i] != 0);
             i++;
         }
 
@@ -88,10 +87,11 @@ simulated function int numAchievements() {
 }
 
 simulated function int numCompleted() {
-    local int i, numCompleted;
+    local int numCompleted;
+    local StandardAchievement it;
 
-    for(i= 0; i < achievements.Length; i++) {
-        if (achievements[i].completed != 0) {
+    foreach achievements(it) {
+        if (!it.completed) {
             numCompleted++;
         }
     }
@@ -106,7 +106,7 @@ simulated function String attrName() {
     return packName;
 }
 
-reliable client function flushToClient(int index, int progress, byte completed) {
+reliable client function flushToClient(int index, int progress, bool completed) {
     achievements[index].progress= progress;
     achievements[index].completed= completed;
 }
@@ -155,8 +155,8 @@ reliable client function localAchievementCompleted(int index) {
 }
 
 function protected achievementCompleted(int index) {
-    if (achievements[index].completed == 0) {
-        achievements[index].completed= 1;
+    if (!achievements[index].completed) {
+        achievements[index].completed= true;
         flushToClient(index, achievements[index].progress, achievements[index].completed);
         localAchievementCompleted(index);
     }
@@ -178,7 +178,5 @@ function protected addProgress(int index, int offset) {
 
 defaultproperties
 {
-    dataDelim=","
-    achvDelim=";"
     defaultAchievementImage=Texture2D'EditorMaterials.Tick'
 }

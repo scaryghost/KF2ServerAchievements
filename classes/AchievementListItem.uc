@@ -20,7 +20,7 @@ function RenderItem(MobileMenuList List, Canvas Canvas, float DeltaTime) {
 
     TempY+= (Height - iconSizeY) / 2;
     Canvas.SetPos(0, TempY);
-    if (achv.completed == 0) {
+    if (achv.completed) {
         Canvas.DrawTile(locked, iconSizeX, iconSizeY, 0, 0, locked.SizeX, locked.SizeY, lockedColor);
     } else {
         Canvas.DrawTile(achv.image, iconSizeX, iconSizeY, 0, 0, achv.image.SizeX, achv.image.SizeY);

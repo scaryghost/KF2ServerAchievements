@@ -7,7 +7,7 @@ struct Achievement {
     var Texture2D image;
     var int maxProgress;
     var int progress;
-    var byte completed;
+    var bool completed;
 };
 
 event killedMonster(Pawn target, class<DamageType> damageType);
