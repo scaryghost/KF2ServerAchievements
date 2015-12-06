@@ -56,7 +56,7 @@ function deserialize(const out array<byte> objectState) {
             i+= 4;
 
             it.completed= it.progress >= it.maxProgress;
-            if (!it.completed && it.maxProgress != 0 && it.persistProgress) {
+            if (!it.completed && it.maxProgress != 0 && it.notifyProgress != 0) {
                 it.notifyCount= it.progress / (it.maxProgress * it.notifyProgress);
             }
         } else {
@@ -166,9 +166,11 @@ function protected addProgress(int index, int offset) {
     achievements[index].progress+= offset;
     if (achievements[index].progress >= achievements[index].maxProgress) {
         achievementCompleted(index);
-    } else if (achievements[index].persistProgress) {
-        flushToClient(index, achievements[index].progress, achievements[index].completed);
-        if (achievements[index].progress >= achievements[index].notifyProgress * 
+    } else {
+        if (achievements[index].persistProgress) {
+            flushToClient(index, achievements[index].progress, achievements[index].completed);
+        }
+        if (achievements[index].notifyProgress != 0 && achievements[index].progress >= achievements[index].notifyProgress * 
                     (achievements[index].notifyCount + 1) * achievements[index].maxProgress) {
             notifyProgress(index);
             achievements[index].notifyCount++;
