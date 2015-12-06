@@ -9,17 +9,15 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
     local string query, steamIdString;
     local AchievementPack it;
     local HttpRequestInterface httpRequest;
-    local Guid packId;
 
     steamIdString= class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(ownerSteamId);
     foreach packs(it) {
         pendingPacks.AddItem(it);
 
-        packId= it.attrId();
         queryParts.Length= 0;
         queryParts.AddItem("action=get");
         queryParts.AddItem("steamid=" $ steamIdString);
-        queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
+        queryParts.AddItem("packguid=" $ PathName(it.class));
 
         JoinArray(queryParts, query, "&");
 
@@ -39,17 +37,15 @@ function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPac
     local string query, steamIdString;
     local AchievementPack it;
     local HttpRequestInterface httpRequest;
-    local Guid packId;
 
     steamIdString= class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(ownerSteamId);
     foreach packs(it) {
-        packId= it.attrId();
         it.serialize(objectState);
 
         queryParts.Length= 0;
         queryParts.AddItem("steamid=" $ steamIdString);
         queryParts.AddItem("action=save");
-        queryParts.AddItem("packguid=" $ Locs(GetStringFromGuid(packId)));
+        queryParts.AddItem("packguid=" $ PathName(it.class));
         queryParts.AddItem("state=" $ byteArrayToString(objectState));
 
         JoinArray(queryParts, query, "&");

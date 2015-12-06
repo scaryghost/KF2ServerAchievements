@@ -5,14 +5,12 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
     local string steamIdString;
     local AchievementPack it;
     local StateDataObject stateObject;
-    local Guid packGuid;
 
     steamIdString= class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(ownerSteamId);
     stateObject= new(None, steamIdString) class'StateDataObject';
     foreach packs(it) {
-        packGuid= it.attrId();
 
-        objectState= stateObject.getSerializedData(packGuid);
+        objectState= stateObject.getSerializedData(PathName(it.class));
         it.deserialize(objectState);
     }
 }
@@ -22,15 +20,13 @@ function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPac
     local String steamIdString;
     local AchievementPack it;
     local StateDataObject stateObject;
-    local Guid packGuid;
 
     steamIdString= class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(ownerSteamId);
     stateObject= new(None, steamIdString) class'StateDataObject';
     foreach packs(it) {
-        packGuid= it.attrId();
         it.serialize(objectState);
 
-        stateObject.updateSerializedData(packGuid, objectState);
+        stateObject.updateSerializedData(PathName(it.class), objectState);
     }
 
     stateObject.SaveConfig();

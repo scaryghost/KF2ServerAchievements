@@ -19,7 +19,6 @@ function deserialize(const out array<byte> objectState);
 simulated function lookupAchievement(int index, out Achievement result);
 simulated function int numAchievements();
 simulated function int numCompleted();
-simulated function Guid attrId();
 simulated function String attrName();
 
 defaultproperties

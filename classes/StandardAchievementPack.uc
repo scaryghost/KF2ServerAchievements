@@ -15,7 +15,6 @@ var protectedwrite PlayerController localController;
 var protectedwrite array<StandardAchievement> achievements;
 var protectedwrite localized String packName;
 var protectedwrite Texture2D defaultAchievementImage;
-var protectedwrite Guid packGuid;
 
 var private localized String achvUnlockedMsg, achvInProgressMsg;
 
@@ -96,10 +95,6 @@ simulated function int numCompleted() {
         }
     }
     return numCompleted;
-}
-
-simulated function Guid attrId() {
-    return packGuid;
 }
 
 simulated function String attrName() {

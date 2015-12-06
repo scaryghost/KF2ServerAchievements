@@ -3,20 +3,19 @@ class StateDataObject extends Object
     Config(ServerAchievementsState);
 
 struct AchievementState {
-    var config Guid packGuid;
+    var config string packClassname;
     var config array<byte> serializedValue;
 };
 
-var() config array<AchievementState> localSavedState;
+var config array<AchievementState> localSavedState;
 
-function array<byte> getSerializedData(const out Guid packGuid) {
+function array<byte> getSerializedData(string classname) {
     local array<byte> empty;
     local AchievementState it;
 
     empty.Length= 0;
     foreach localSavedState(it) {
-        if (it.packGuid.A == packGuid.A && it.packGuid.B == packGuid.B && it.packGuid.C == packGuid.C && 
-                it.packGuid.D == packGuid.D) {
+        if (it.packClassname == classname) {
             return it.serializedValue;
         }
     }
@@ -24,19 +23,18 @@ function array<byte> getSerializedData(const out Guid packGuid) {
     return empty;
 }
 
-function updateSerializedData(const out Guid packGuid, const out array<byte> savedState) {
+function updateSerializedData(string classname, const out array<byte> savedState) {
     local AchievementState it, newItem;
 
     if (savedState.Length > 0) {
         foreach localSavedState(it) {
-            if (it.packGuid.A == packGuid.A && it.packGuid.B == packGuid.B && it.packGuid.C == packGuid.C && 
-                    it.packGuid.D == packGuid.D) {
+            if (it.packClassname == classname) {
                 it.serializedValue= savedState;
                 return;
             }
         }
 
-        newItem.packGuid= packGuid;
+        newItem.packClassname= classname;
         newItem.serializedValue= savedState;
         localSavedState.AddItem(newItem);
     }
