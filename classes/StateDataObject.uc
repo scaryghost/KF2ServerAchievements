@@ -4,14 +4,16 @@ class StateDataObject extends Object
 
 struct AchievementState {
     var config Guid packGuid;
-    var config String serializedValue;
+    var config array<byte> serializedValue;
 };
 
 var() config array<AchievementState> localSavedState;
 
-function string getSerializedData(const out Guid packGuid) {
+function array<byte> getSerializedData(const out Guid packGuid) {
+    local array<byte> empty;
     local AchievementState it;
 
+    empty.Length= 0;
     foreach localSavedState(it) {
         if (it.packGuid.A == packGuid.A && it.packGuid.B == packGuid.B && it.packGuid.C == packGuid.C && 
                 it.packGuid.D == packGuid.D) {
@@ -19,13 +21,13 @@ function string getSerializedData(const out Guid packGuid) {
         }
     }
 
-    return "";
+    return empty;
 }
 
-function updateSerializedData(const out Guid packGuid, string savedState) {
+function updateSerializedData(const out Guid packGuid, const out array<byte> savedState) {
     local AchievementState it, newItem;
 
-    if (Len(savedState) > 0) {
+    if (savedState.Length > 0) {
         foreach localSavedState(it) {
             if (it.packGuid.A == packGuid.A && it.packGuid.B == packGuid.B && it.packGuid.C == packGuid.C && 
                     it.packGuid.D == packGuid.D) {

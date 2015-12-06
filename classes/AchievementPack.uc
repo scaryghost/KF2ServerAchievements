@@ -14,8 +14,8 @@ event killedMonster(Pawn target, class<DamageType> damageType);
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType);
 event pickedUpItem(Actor item);
 
-function string serializeAchievements();
-function deserializeAchievements(string serializedAchvs);
+function serialize(out array<byte> objectState);
+function deserialize(const out array<byte> objectState);
 simulated function lookupAchievement(int index, out Achievement result);
 simulated function int numAchievements();
 simulated function int numCompleted();

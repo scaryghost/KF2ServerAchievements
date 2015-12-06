@@ -27,41 +27,45 @@ simulated event PostBeginPlay() {
     ownerController= KFPlayerController(Owner);
 }
 
-function string serializeAchievements() {
-    local string serialized;
-    local array<string> serializedParts;
-    local int i;
+function serialize(out array<byte> objectState) {
     local StandardAchievement it;
 
-    foreach achievements(it, i) {
-        if (it.completed != 0 || (it.progress != 0 && it.persistProgress)) {
-            serializedParts.AddItem(i $ dataDelim $ it.completed $ dataDelim $ it.progress);
+    objectState.Length= 0;
+    foreach achievements(it) {
+        if (it.persistProgress) {
+            objectState.AddItem(it.progress & 0xff);
+            objectState.AddItem((it.progress >> 8) & 0xff);
+            objectState.AddItem((it.progress >> 16) & 0xff);
+            objectState.AddItem((it.progress >> 24) & 0xff);
+        } else {
+            objectState.AddItem(it.completed);
         }
     }
-
-    JoinArray(serializedParts, serialized, achvDelim);
-    return serialized;
 }
 
-function deserializeAchievements(string serializedAchvs) {
-    local array<string> serializedParts, achvData;
-    local string it;
-    local int index;
+function deserialize(const out array<byte> objectState) {
+    local int i, j;
+    local StandardAchievement it;
 
-    ParseStringIntoArray(serializedAchvs, serializedParts, achvDelim, true);
-    foreach serializedParts(it) {
-        ParseStringIntoArray(it, achvData, dataDelim, true);
-        if (achvData.Length == 3) {
-            index= int(achvData[0]);
-            achievements[index].completed= byte(achvData[1]);
-            achievements[index].progress= int(achvData[2]);
-            flushToClient(index, achievements[index].progress, achievements[index].completed);
-
-            if (achievements[index].completed == 0 && achievements[index].maxProgress != 0) {
-                achievements[index].notifyCount= achievements[index].progress / 
-                        (achievements[index].maxProgress * achievements[index].notifyProgress);
-            }
+    i= 0;
+    foreach achievements(it, j) {
+        if (i >= objectState.Length) {
+            break;
         }
+        if (it.persistProgress) {
+            it.progress= (objectState[i] | (objectState[i + 1] << 8) | (objectState[i + 2] << 16) | (objectState[i + 3] << 24));
+            i+= 4;
+
+            it.completed= it.progress >= it.maxProgress ? 1 : 0;
+            if (it.completed == 0 && it.maxProgress != 0 && it.persistProgress) {
+                it.notifyCount= it.progress / (it.maxProgress * it.notifyProgress);
+            }
+        } else {
+            it.completed= objectState[i];
+            i++;
+        }
+
+        flushToClient(j, it.progress, it.completed);
     }
 }
 
