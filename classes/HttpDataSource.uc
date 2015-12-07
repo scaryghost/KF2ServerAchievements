@@ -16,8 +16,7 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
 
         queryParts.Length= 0;
         queryParts.AddItem("action=get");
-        queryParts.AddItem("steamid=" $ steamIdString);
-        queryParts.AddItem("packguid=" $ PathName(it.class));
+        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ PathName(it.class));
 
         JoinArray(queryParts, query, "&");
 
@@ -43,10 +42,9 @@ function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPac
         it.serialize(objectState);
 
         queryParts.Length= 0;
-        queryParts.AddItem("steamid=" $ steamIdString);
         queryParts.AddItem("action=save");
-        queryParts.AddItem("packguid=" $ PathName(it.class));
-        queryParts.AddItem("state=" $ byteArrayToHexString(objectState));
+        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ PathName(it.class));
+        queryParts.AddItem("value=" $ byteArrayToHexString(objectState));
 
         JoinArray(queryParts, query, "&");
 
