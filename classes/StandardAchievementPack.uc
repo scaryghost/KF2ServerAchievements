@@ -43,27 +43,26 @@ function serialize(out array<byte> objectState) {
 
 function deserialize(const out array<byte> objectState) {
     local int i, j;
-    local StandardAchievement it;
 
     i= 0;
-    foreach achievements(it, j) {
+    for(j= 0; j < achievements.Length; j++) {
         if (i >= objectState.Length) {
             break;
         }
-        if (it.persistProgress) {
-            it.progress= (objectState[i] | (objectState[i + 1] << 8) | (objectState[i + 2] << 16) | (objectState[i + 3] << 24));
+        if (achievements[j].persistProgress) {
+            achievements[j].progress= (objectState[i] | (objectState[i + 1] << 8) | (objectState[i + 2] << 16) | (objectState[i + 3] << 24));
             i+= 4;
 
-            it.completed= it.progress >= it.maxProgress;
-            if (!it.completed && it.maxProgress != 0 && it.notifyProgress != 0) {
-                it.notifyCount= it.progress / (it.maxProgress * it.notifyProgress);
+            achievements[j].completed= achievements[j].progress >= achievements[j].maxProgress;
+            if (!achievements[j].completed && achievements[j].maxProgress != 0 && achievements[j].notifyProgress != 0) {
+                achievements[j].notifyCount= achievements[j].progress / (achievements[j].maxProgress * achievements[j].notifyProgress);
             }
         } else {
-            it.completed= (objectState[i] != 0);
+            achievements[j].completed= (objectState[i] != 0);
             i++;
         }
 
-        flushToClient(j, it.progress, it.completed);
+        flushToClient(j, achievements[j].progress, achievements[j].completed);
     }
 }
 
