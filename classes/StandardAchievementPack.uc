@@ -6,8 +6,8 @@ struct StandardAchievement extends Achievement {
     var localized string title;
     var localized string description;
     var float notifyProgress;
+    var int nextProgress;
     var bool persistProgress;
-    var byte notifyCount;
 };
 
 var protectedwrite KFPlayerController ownerController;
@@ -42,7 +42,7 @@ function serialize(out array<byte> objectState) {
 }
 
 function deserialize(const out array<byte> objectState) {
-    local int i, j;
+    local int i, j, count, notifyStep;
 
     i= 0;
     for(j= 0; j < achievements.Length; j++) {
@@ -55,7 +55,9 @@ function deserialize(const out array<byte> objectState) {
 
             achievements[j].completed= achievements[j].progress >= achievements[j].maxProgress;
             if (!achievements[j].completed && achievements[j].maxProgress != 0 && achievements[j].notifyProgress != 0) {
-                achievements[j].notifyCount= achievements[j].progress / (achievements[j].maxProgress * achievements[j].notifyProgress);
+                notifyStep= achievements[j].maxProgress * achievements[j].notifyProgress;
+                count= achievements[j].progress / notifyStep;
+                achievements[j].nextProgress= (count + 1) * notifyStep;
             }
         } else {
             achievements[j].completed= (objectState[i] != 0);
@@ -162,12 +164,14 @@ function protected addProgress(int index, int offset) {
         achievementCompleted(index);
     } else {
         if (achievements[index].persistProgress) {
+            if (achievements[index].nextProgress == 0) {
+                achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
+            }
             flushToClient(index, achievements[index].progress, achievements[index].completed);
         }
-        if (achievements[index].notifyProgress != 0 && achievements[index].progress >= achievements[index].notifyProgress * 
-                    (achievements[index].notifyCount + 1) * achievements[index].maxProgress) {
+        if (achievements[index].notifyProgress != 0 && achievements[index].progress >= achievements[index].nextProgress) {
             notifyProgress(index);
-            achievements[index].notifyCount++;
+            achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
         }
     }
 }
