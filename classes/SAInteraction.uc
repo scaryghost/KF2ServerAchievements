@@ -1,5 +1,5 @@
 class SAInteraction extends Interaction
-    config(ServerAchievements);
+    config(Input);
 
 const PHASE_DONE= -1;
 const PHASE_SHOWING= 0;
@@ -36,7 +36,31 @@ var private int NotificationPhase;
 var private array<PopupMessage> messageQueue;
 var privatewrite string newLineSeparator;
 
-function Initialized() {
+exec function toggleAchievementMenu() {
+    local SAReplicationInfo saRepInfo;
+    local MobilePlayerInput mbPlayerInput;
+
+    mbPlayerInput= MobilePlayerInput(owner.PlayerInput);
+    menuOpen= !menuOpen;
+    if (menuOpen) {
+        showHud= owner.myHUD.bShowHUD;
+        owner.myHUD.bShowHUD= false;
+        owner.IgnoreMoveInput(true);
+        owner.IgnoreLookInput(true);
+        scene= mbPlayerInput.OpenMenuScene(class'AchievementMenuScene');
+
+        if (ownerAchvPacks.Length == 0) {
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(owner.PlayerReplicationInfo);
+            saRepInfo.getAchievementPacks(ownerAchvPacks);
+        }
+        AchievementMenuScene(scene).achievementPacks= ownerAchvPacks;
+        AchievementMenuScene(scene).refreshAchievementLabel();
+    } else {
+        owner.myHUD.bShowHUD= showHud;
+        owner.IgnoreMoveInput(false);
+        owner.IgnoreLookInput(false);
+        MobilePlayerInput(owner.PlayerInput).CloseMenuScene(scene);
+    }
 }
 
 function bool CheckBounds(MobileMenuObject menuObject) {
@@ -80,9 +104,7 @@ function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime
 
 function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f,
         optional bool bGamepad) {
-    local SAReplicationInfo saRepInfo;
     local MobileMenuObject it;
-    local MobilePlayerInput mbPlayerInput;
 
     leftButtonPressed= (Key == 'LeftMouseButton' && EventType == IE_Pressed);
     if (leftButtonPressed && menuOpen) {
@@ -101,30 +123,6 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
         return true;
     }
 
-    mbPlayerInput= MobilePlayerInput(owner.PlayerInput);
-
-    if (EventType == IE_Pressed && key == 'F4') {
-        menuOpen= !menuOpen;
-        if (menuOpen) {
-            showHud= owner.myHUD.bShowHUD;
-            owner.myHUD.bShowHUD= false;
-            owner.IgnoreMoveInput(true);
-            owner.IgnoreLookInput(true);
-            scene= mbPlayerInput.OpenMenuScene(class'AchievementMenuScene');
-
-            if (ownerAchvPacks.Length == 0) {
-                saRepInfo= class'SAReplicationInfo'.static.findSAri(owner.PlayerReplicationInfo);
-                saRepInfo.getAchievementPacks(ownerAchvPacks);
-            }
-            AchievementMenuScene(scene).achievementPacks= ownerAchvPacks;
-            AchievementMenuScene(scene).refreshAchievementLabel();
-        } else {
-            owner.myHUD.bShowHUD= showHud;
-            owner.IgnoreMoveInput(false);
-            owner.IgnoreLookInput(false);
-            MobilePlayerInput(owner.PlayerInput).CloseMenuScene(scene);
-        }
-    }
     return false;
 }
 
