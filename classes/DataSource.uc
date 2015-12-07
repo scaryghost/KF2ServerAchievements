@@ -12,7 +12,7 @@ static function string byteArrayToHexString(const out array<byte> byteArray) {
         lowBits= it & 0xf;
         highBits= (it >> 4) & 0xf;
 
-        result$= (Chr(lowBits + (lowBits < 10 ? 48 : 55)) $ Chr(highBits + (highBits < 10 ? 48 : 55)));
+        result$= (Chr(highBits + (highBits < 10 ? 48 : 55)) $ Chr(lowBits + (lowBits < 10 ? 48 : 55)));
     }
 
     return result;
@@ -23,7 +23,7 @@ static function hexStringToByteArray(string stringValue, out array<byte> byteArr
 
     while(Len(stringValue) != 0) {
         next= Left(stringValue, 2);
-        byteArray.AddItem(hexCharToInt(Left(next, 1)) | (hexCharToInt(Right(next, 1)) << 4));
+        byteArray.AddItem(hexCharToInt(Right(next, 1)) | (hexCharToInt(Left(next, 1)) << 4));
         stringValue= Mid(stringValue, 2);
     }
 }
