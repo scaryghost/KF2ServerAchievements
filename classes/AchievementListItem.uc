@@ -56,7 +56,7 @@ defaultproperties
     background=Texture2D'Bkgnd'
     progressBar=Texture2D'BkgndHi'
     lockedColor=(r=1.0,g=0.0,b=0.0,a=1.0)
-    locked=Texture2D'EditorMaterials.TerrainLayerBrowser.TLB_Lock'
+    locked=Texture2D'EditorMaterials.Cross'
 
     Height=70
     progressBarOffset=0.025
