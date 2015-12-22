@@ -102,13 +102,23 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
     local AchievementPack it;
 
 	if (!super.PreventDeath(Killed, Killer, damageType, HitLocation)) {
-        if (Killer.IsA('KFPlayerController')) {
+        if (Killed.IsA('KFPawn_Human')) {
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killed.PlayerReplicationInfo);
+            if (saRepInfo != none) {
+                saRepInfo.getAchievementPacks(achievementPacks);
+                foreach achievementPacks(it) {
+                    it.died(Killer, damageType);
+                }
+            }
+        } else if (Killer.IsA('KFPlayerController')) {
             saRepInfo= class'SAReplicationInfo'.static.findSAri(Killer.PlayerReplicationInfo);
             
             if (saRepInfo != none) {
                 saRepInfo.getAchievementPacks(achievementPacks);
-                foreach achievementPacks(it) {
-                    it.killedMonster(Killed, DamageType);
+                if (Killed.IsA('KFPawn_Monster')) {
+                    foreach achievementPacks(it) {
+                        it.killedMonster(Killed, DamageType);
+                    }
                 }
             }
         }

@@ -163,15 +163,17 @@ function protected addProgress(int index, int offset) {
     if (achievements[index].progress >= achievements[index].maxProgress) {
         achievementCompleted(index);
     } else {
-        if (achievements[index].persistProgress) {
+        if (achievements[index].notifyProgress != 0) {
+            flushToClient(index, achievements[index].progress, achievements[index].completed);
+
             if (achievements[index].nextProgress == 0) {
+                achievements[index].nextProgress= achievements[index].maxProgress * achievements[index].notifyProgress;
+            }
+
+            if (achievements[index].progress >= achievements[index].nextProgress) {
+                notifyProgress(index);
                 achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
             }
-            flushToClient(index, achievements[index].progress, achievements[index].completed);
-        }
-        if (achievements[index].notifyProgress != 0 && achievements[index].progress >= achievements[index].nextProgress) {
-            notifyProgress(index);
-            achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
         }
     }
 }
