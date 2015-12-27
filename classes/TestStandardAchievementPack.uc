@@ -6,6 +6,18 @@ enum TestSapIndex {
     WATCH_YOUR_STEP
 };
 
+event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
+    `Log("Tossing a frag! " $ grenadeClass, true, 'ServerAchievements');
+}
+
+event reloadedWeapon(Weapon currentWeapon) {
+    `Log("Reloaded my weapon! " $ currentWeapon.class, true, 'ServerAchievements');
+}
+
+event firedWeapon(Weapon currentWeapon) {
+    `Log("Fired my weapon! " $ currentWeapon.class, true, 'ServerAchievements');
+}
+
 event died(Controller killer, class<DamageType> damageType) {
     if (damageType == class'KFDT_Falling') {
         addProgress(WATCH_YOUR_STEP, 1);

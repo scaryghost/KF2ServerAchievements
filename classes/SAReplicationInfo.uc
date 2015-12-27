@@ -4,7 +4,7 @@ var array<class<AchievementPack> > achievementPackClasses;
 var DataSource dataSrc;
 var PlayerReplicationInfo ownerPri;
 
-var private bool initialized;
+var private bool initialized, signalFire, signalReload, signalFragToss;
 var private array<AchievementPack> achievementPacks;
 
 replication {
@@ -13,6 +13,8 @@ replication {
 }
 
 simulated event Tick(float DeltaTime) {
+    local KFPawn ownerPawn;
+    local bool weaponIsFiring, weaponIsReloading, tossingFrag;
     local class<AchievementPack> it;
     local AchievementPack pack;
     local PlayerController localController;
@@ -41,6 +43,44 @@ simulated event Tick(float DeltaTime) {
         }
 
         initialized= true;
+    }
+
+    if (Role == ROLE_Authority) {
+        ownerPawn= KFPawn(Controller(Owner).Pawn);
+
+        if (ownerPawn != None && ownerPawn.Weapon != none) {
+            `Log("Weapon State: " $ ownerPawn.Weapon.GetStateName(), true, 'ServerAchievements');
+            weaponIsFiring= ownerPawn.Weapon.GetStateName() == 'WeaponSingleFiring' || 
+                    ownerPawn.Weapon.GetStateName() == 'WeaponBurstFiring' || ownerPawn.Weapon.GetStateName() == 'SprayingFire';
+            if (!signalFire && weaponIsFiring) {
+                foreach achievementPacks(pack) {
+                    pack.firedWeapon(ownerPawn.Weapon);
+                }
+                signalFire= true;
+            } else if (signalFire && !weaponIsFiring) {
+                signalFire= false;
+            }
+
+            weaponIsReloading= ownerPawn.Weapon.IsInState('Reloading');
+            if (!signalReload && weaponIsReloading) {
+                foreach achievementPacks(pack) {
+                    pack.firedWeapon(ownerPawn.Weapon);
+                }
+                signalReload= true;
+            } else if (signalReload && !weaponIsReloading) {
+                signalReload= false;
+            }
+
+            tossingFrag= ownerPawn.Weapon.IsInState('GrenadeFiring');
+            if (!signalFragToss && tossingFrag) {
+                foreach achievementPacks(pack) {
+                    pack.tossedGrenade(ownerPawn.GetPerk().GetGrenadeClass());
+                }
+                signalFragToss= true;
+            } else if (signalFragToss && !tossingFrag) {
+                signalFragToss= false;
+            }
+        }
     }
 }
 
