@@ -127,6 +127,26 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
     return true;
 }
 
+function ModifyNextTraderIndex(out byte NextTraderIndex) {
+    local KFGameReplicationInfo gri;
+    local SAReplicationInfo saRepInfo;
+    local array<AchievementPack> packs;
+    local AchievementPack it;
+
+    super.ModifyNextTraderIndex(NextTraderIndex);
+
+    gri= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo);
+
+    if (gri != none) {
+        foreach DynamicActors(class'SAReplicationInfo', saRepInfo) {
+            saRepInfo.getAchievementPacks(packs);
+            foreach packs(it) {
+                it.waveStarted(gri.WaveNum, gri.WaveMax);
+            }
+        }
+    }
+}
+
 function NotifyLogout(Controller Exiting) {
     local SAReplicationInfo saRepInfo;
     local array<AchievementPack> packs;

@@ -1,6 +1,12 @@
 class AchievementPack extends Actor
     abstract;
 
+enum MatchResult {
+    SA_MR_UNKNOWN,
+    SA_MR_WON,
+    SA_MR_LOST
+};
+
 struct Achievement {
     var string title;
     var string description;
@@ -10,6 +16,15 @@ struct Achievement {
     var bool completed;
 };
 
+struct MatchInfo {
+    var string mapName;
+    var byte difficulty;
+    var byte length;
+    var MatchResult result;
+};
+
+event matchEnded(const out MatchInfo info);
+event waveStarted(byte newWave, byte waveMax);
 event tossedGrenade(class<KFProj_Grenade> grenadeClass);
 event reloadedWeapon(Weapon currentWeapon);
 event firedWeapon(Weapon currentWeapon);

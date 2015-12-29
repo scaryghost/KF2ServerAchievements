@@ -6,6 +6,14 @@ enum TestSapIndex {
     WATCH_YOUR_STEP
 };
 
+event matchEnded(const out MatchInfo info) {
+    `Log("Match is over! name=" $ info.mapName $ ", difficult= " $ info.difficulty $ ", length= " $ info.length $ ", result= " $ info.result);
+}
+
+event waveStarted(byte newWave, byte waveMax) {
+    `Log("Wave started! newWave= " $ newWave $ ", waveMax= " $ waveMax);
+}
+
 event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
     `Log("Tossing a frag! " $ grenadeClass, true, 'ServerAchievements');
 }

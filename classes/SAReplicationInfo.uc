@@ -4,7 +4,7 @@ var array<class<AchievementPack> > achievementPackClasses;
 var DataSource dataSrc;
 var PlayerReplicationInfo ownerPri;
 
-var private bool initialized, signalFire, signalReload, signalFragToss;
+var private bool initialized, signalFire, signalReload, signalFragToss, handledGameEnded;
 var private array<AchievementPack> achievementPacks;
 
 replication {
@@ -13,6 +13,7 @@ replication {
 }
 
 simulated event Tick(float DeltaTime) {
+    local MatchInfo info;
     local KFPawn ownerPawn;
     local bool weaponIsFiring, weaponIsReloading, tossingFrag;
     local class<AchievementPack> it;
@@ -49,7 +50,7 @@ simulated event Tick(float DeltaTime) {
         ownerPawn= KFPawn(Controller(Owner).Pawn);
 
         if (ownerPawn != None && ownerPawn.Weapon != none) {
-            `Log("Weapon State: " $ ownerPawn.Weapon.GetStateName(), true, 'ServerAchievements');
+//            `Log("Weapon State: " $ ownerPawn.Weapon.GetStateName(), true, 'ServerAchievements');
             weaponIsFiring= ownerPawn.Weapon.GetStateName() == 'WeaponSingleFiring' || 
                     ownerPawn.Weapon.GetStateName() == 'WeaponBurstFiring' || ownerPawn.Weapon.GetStateName() == 'SprayingFire';
             if (!signalFire && weaponIsFiring) {
@@ -79,6 +80,23 @@ simulated event Tick(float DeltaTime) {
                 signalFragToss= true;
             } else if (signalFragToss && !tossingFrag) {
                 signalFragToss= false;
+            }
+        }
+
+        if (!handledGameEnded && WorldInfo.Game.GameReplicationInfo.bMatchIsOver) {
+            handledGameEnded= true;
+            info.mapName= WorldInfo.GetMapName(true);
+            info.difficulty= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameDifficulty;
+            info.length= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameLength;
+
+            if (WorldInfo.Game.IsA('KFGameInfo')) {
+                info.result= KFGameInfo(WorldInfo.Game).GetLivingPlayerCount() <= 0 ? SA_MR_LOST : SA_MR_WON;
+            } else {
+                info.result= SA_MR_UNKNOWN;
+            }
+
+            foreach achievementPacks(pack) {
+                pack.matchEnded(info);
             }
         }
     }
