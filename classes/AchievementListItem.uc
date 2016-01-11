@@ -33,7 +33,7 @@ function RenderItem(MobileMenuList List, Canvas Canvas, float DeltaTime) {
     Canvas.DrawText(achv.title);
     Canvas.DrawText(achv.description);
 
-    if (achv.maxProgress != 0) {
+    if (!achv.hideProgress) {
         TempX= List.Width * (1 - 0.227 - progressBarOffset);
         Canvas.SetPos(TempX, TempY);
         if (achv.progress >= achv.maxProgress) {

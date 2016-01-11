@@ -3,7 +3,8 @@ class TestStandardAchievementPack extends StandardAchievementPack;
 enum TestSapIndex {
     EXPERIMENTIMILLICIDE,
     AMMO_COLLECTOR,
-    WATCH_YOUR_STEP
+    WATCH_YOUR_STEP,
+    FIRE_IN_THE_HOLE
 };
 
 event matchEnded(const out MatchInfo info) {
@@ -11,11 +12,13 @@ event matchEnded(const out MatchInfo info) {
 }
 
 event waveStarted(byte newWave, byte waveMax) {
-    `Log("Wave started! newWave= " $ newWave $ ", waveMax= " $ waveMax);
+    if (!achievements[FIRE_IN_THE_HOLE].completed) {
+        resetProgress(FIRE_IN_THE_HOLE);
+    }
 }
 
 event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
-    `Log("Tossing a frag! " $ grenadeClass, true, 'ServerAchievements');
+    addProgress(FIRE_IN_THE_HOLE, 1);
 }
 
 event reloadedWeapon(Weapon currentWeapon) {
@@ -33,6 +36,7 @@ event died(Controller killer, class<DamageType> damageType) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType) {
+    `Log("Kill damage type: " $ damageType, true, 'ServerAchievements');
     addProgress(TestSapIndex.EXPERIMENTIMILLICIDE, 1);
 }
 
@@ -44,7 +48,8 @@ event pickedUpItem(Actor item) {
 
 defaultproperties
 {
-    achievements[0]=(maxProgress=1000,notifyProgress=0.25,persistProgress=true)
-    achievements[1]=(maxProgress=20,notifyProgress=0.5)
-    achievements[2]=(maxProgress=10,persistProgress=true)
+    achievements[0]=(maxProgress=1000,notifyProgress=0.25)
+    achievements[1]=(maxProgress=15,hideProgress=true,discardProgress=true)
+    achievements[2]=(maxProgress=10)
+    achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
 }

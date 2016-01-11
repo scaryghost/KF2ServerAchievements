@@ -1,19 +1,20 @@
 class AchievementPack extends Actor
     abstract;
 
-enum MatchResult {
-    SA_MR_UNKNOWN,
-    SA_MR_WON,
-    SA_MR_LOST
-};
-
 struct Achievement {
     var string title;
     var string description;
     var Texture2D image;
+    var bool hideProgress;
     var int maxProgress;
     var int progress;
     var bool completed;
+};
+
+enum MatchResult {
+    SA_MR_UNKNOWN,
+    SA_MR_WON,
+    SA_MR_LOST
 };
 
 struct MatchInfo {

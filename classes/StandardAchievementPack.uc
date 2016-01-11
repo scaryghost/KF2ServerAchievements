@@ -7,7 +7,7 @@ struct StandardAchievement extends Achievement {
     var localized string description;
     var float notifyProgress;
     var int nextProgress;
-    var bool persistProgress;
+    var bool discardProgress;
 };
 
 var protectedwrite KFPlayerController ownerController;
@@ -30,7 +30,7 @@ function serialize(out array<byte> objectState) {
 
     objectState.Length= 0;
     foreach achievements(it) {
-        if (it.persistProgress) {
+        if (!it.discardProgress) {
             objectState.AddItem(it.progress & 0xff);
             objectState.AddItem((it.progress >> 8) & 0xff);
             objectState.AddItem((it.progress >> 16) & 0xff);
@@ -49,7 +49,7 @@ function deserialize(const out array<byte> objectState) {
         if (i >= objectState.Length) {
             break;
         }
-        if (achievements[j].persistProgress) {
+        if (!achievements[j].discardProgress) {
             achievements[j].progress= (objectState[i] | (objectState[i + 1] << 8) | (objectState[i + 2] << 16) | (objectState[i + 3] << 24));
             i+= 4;
 
@@ -74,6 +74,7 @@ simulated function lookupAchievement(int index, out Achievement result) {
     result.maxProgress= achievements[index].maxProgress;
     result.progress= achievements[index].progress;
     result.completed= achievements[index].completed;
+    result.hideProgress= achievements[index].hideProgress;
 
     if (achievements[index].image == none) {
         result.image= defaultAchievementImage;
@@ -163,9 +164,11 @@ function protected addProgress(int index, int offset) {
     if (achievements[index].progress >= achievements[index].maxProgress) {
         achievementCompleted(index);
     } else {
-        if (achievements[index].notifyProgress != 0) {
+        if (!achievements[index].hideProgress) {
             flushToClient(index, achievements[index].progress, achievements[index].completed);
+        }
 
+        if (achievements[index].notifyProgress != 0) {
             if (achievements[index].nextProgress == 0) {
                 achievements[index].nextProgress= achievements[index].maxProgress * achievements[index].notifyProgress;
             }
@@ -175,6 +178,16 @@ function protected addProgress(int index, int offset) {
                 achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
             }
         }
+    }
+}
+
+function protected resetProgress(int index) {
+    achievements[index].progress= 0;
+    achievements[index].notifyProgress= 0;
+    achievements[index].completed= false;
+
+    if (!achievements[index].hideProgress) {
+        flushToClient(index, 0, false);
     }
 }
 
