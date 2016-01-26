@@ -52,20 +52,25 @@ simulated event Tick(float DeltaTime) {
         if (ownerPawn != None && ownerPawn.Weapon != none) {
 //            `Log("Weapon State: " $ ownerPawn.Weapon.GetStateName(), true, 'ServerAchievements');
             weaponIsFiring= ownerPawn.Weapon.GetStateName() == 'WeaponSingleFiring' || 
-                    ownerPawn.Weapon.GetStateName() == 'WeaponBurstFiring' || ownerPawn.Weapon.GetStateName() == 'SprayingFire';
+                    ownerPawn.Weapon.GetStateName() == 'WeaponFiring' ||
+                    ownerPawn.Weapon.GetStateName() == 'WeaponBurstFiring' || 
+                    ownerPawn.Weapon.GetStateName() == 'SprayingFire';
             if (!signalFire && weaponIsFiring) {
                 foreach achievementPacks(pack) {
                     pack.firedWeapon(ownerPawn.Weapon);
                 }
                 signalFire= true;
             } else if (signalFire && !weaponIsFiring) {
+                foreach achievementPacks(pack) {
+                    pack.stoppedFiringWeapon(ownerPawn.Weapon);
+                }
                 signalFire= false;
             }
 
             weaponIsReloading= ownerPawn.Weapon.IsInState('Reloading');
             if (!signalReload && weaponIsReloading) {
                 foreach achievementPacks(pack) {
-                    pack.firedWeapon(ownerPawn.Weapon);
+                    pack.reloadedWeapon(ownerPawn.Weapon);
                 }
                 signalReload= true;
             } else if (signalReload && !weaponIsReloading) {

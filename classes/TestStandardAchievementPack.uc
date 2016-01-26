@@ -4,8 +4,19 @@ enum TestSapIndex {
     EXPERIMENTIMILLICIDE,
     AMMO_COLLECTOR,
     WATCH_YOUR_STEP,
-    FIRE_IN_THE_HOLE
+    FIRE_IN_THE_HOLE,
+    BLOODY_RUSSIANS
 };
+
+private function checkBloodyRussians(Weapon currentWeapon) {
+    if (!achievements[TestSapIndex.BLOODY_RUSSIANS].completed && currentWeapon.IsA('KFWeap_AssaultRifle_AK12') && !currentWeapon.HasAmmo(0)) {
+        if (achievements[TestSapIndex.BLOODY_RUSSIANS].progress == achievements[TestSapIndex.BLOODY_RUSSIANS].maxProgress) {
+            achievementCompleted(TestSapIndex.BLOODY_RUSSIANS);
+        } else {
+            achievements[TestSapIndex.BLOODY_RUSSIANS].progress= 0;
+        }
+    }
+}
 
 event matchEnded(const out MatchInfo info) {
     `Log("Match is over! name=" $ info.mapName $ ", difficult= " $ info.difficulty $ ", length= " $ info.length $ ", result= " $ info.result);
@@ -22,11 +33,15 @@ event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
 }
 
 event reloadedWeapon(Weapon currentWeapon) {
-    `Log("Reloaded my weapon! " $ currentWeapon.class, true, 'ServerAchievements');
+    achievements[TestSapIndex.BLOODY_RUSSIANS].progress= 0;
 }
 
 event firedWeapon(Weapon currentWeapon) {
     `Log("Fired my weapon! " $ currentWeapon.class, true, 'ServerAchievements');
+}
+
+event stoppedFiringWeapon(Weapon currentWeapon) {
+    checkBloodyRussians(currentWeapon);
 }
 
 event died(Controller killer, class<DamageType> damageType) {
@@ -36,8 +51,11 @@ event died(Controller killer, class<DamageType> damageType) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType) {
-    `Log("Kill damage type: " $ damageType, true, 'ServerAchievements');
     addProgress(TestSapIndex.EXPERIMENTIMILLICIDE, 1);
+
+    if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
+        achievements[TestSapIndex.BLOODY_RUSSIANS].progress++;
+    }
 }
 
 event pickedUpItem(Actor item) {
@@ -52,4 +70,5 @@ defaultproperties
     achievements[1]=(maxProgress=15,hideProgress=true,discardProgress=true)
     achievements[2]=(maxProgress=10)
     achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
+    achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
 }

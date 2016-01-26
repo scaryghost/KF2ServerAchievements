@@ -29,6 +29,7 @@ event waveStarted(byte newWave, byte waveMax);
 event tossedGrenade(class<KFProj_Grenade> grenadeClass);
 event reloadedWeapon(Weapon currentWeapon);
 event firedWeapon(Weapon currentWeapon);
+event stoppedFiringWeapon(Weapon currentWeapon);
 event died(Controller killer, class<DamageType> damageType);
 event killedMonster(Pawn target, class<DamageType> damageType);
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType);

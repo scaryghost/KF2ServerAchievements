@@ -4,6 +4,7 @@ achievements[0]=(title="Experimentimillicide",description="Kill 1000 specimens")
 achievements[1]=(title="Ammo Collector",description="Collect 15 ammo boxes in a game")
 achievements[2]=(title="Watch Your Step",description="Die from fall damage 10 times")
 achievements[3]=(title="Fire In The Hole",description="Toss 5 grenades in a wave")
+achievements[4]=(title="Bloody Russians",description="Empty an AK-12 mag and kill only 1 specimen")
 
 [StandardAchievementPack]
 achvUnlockedMsg="Achievement Unlocked"
