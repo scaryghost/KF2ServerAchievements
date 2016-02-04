@@ -64,6 +64,14 @@ event pickedUpItem(Actor item) {
     }
 }
 
+event damagedMonster(int damage, Pawn target, class<DamageType> damageType) {
+    `Log("Damaged a monster! " $ damageType, true, 'ServerAchievements');
+}
+
+event swungWeapon(Weapon currentWeapon) {
+    `Log("Swinging weapon: " $ currentWeapon);
+}
+
 defaultproperties
 {
     achievements[0]=(maxProgress=1000,notifyProgress=0.25)

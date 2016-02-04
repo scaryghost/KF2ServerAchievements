@@ -4,7 +4,7 @@ var array<class<AchievementPack> > achievementPackClasses;
 var DataSource dataSrc;
 var PlayerReplicationInfo ownerPri;
 
-var private bool initialized, signalFire, signalReload, signalFragToss, handledGameEnded;
+var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing, handledGameEnded;
 var private array<AchievementPack> achievementPacks;
 
 replication {
@@ -15,11 +15,12 @@ replication {
 simulated event Tick(float DeltaTime) {
     local MatchInfo info;
     local KFPawn ownerPawn;
-    local bool weaponIsFiring, weaponIsReloading, tossingFrag;
+    local bool weaponIsFiring, weaponIsReloading, weaponIsSwinging, tossingFrag;
     local class<AchievementPack> it;
     local AchievementPack pack;
     local PlayerController localController;
     local SAInteraction newInteraction;
+    local Name weaponState;
 
     if (!initialized) {
         if (Role == ROLE_Authority) {
@@ -50,11 +51,11 @@ simulated event Tick(float DeltaTime) {
         ownerPawn= KFPawn(Controller(Owner).Pawn);
 
         if (ownerPawn != None && ownerPawn.Weapon != none) {
-//            `Log("Weapon State: " $ ownerPawn.Weapon.GetStateName(), true, 'ServerAchievements');
-            weaponIsFiring= ownerPawn.Weapon.GetStateName() == 'WeaponSingleFiring' || 
-                    ownerPawn.Weapon.GetStateName() == 'WeaponFiring' ||
-                    ownerPawn.Weapon.GetStateName() == 'WeaponBurstFiring' || 
-                    ownerPawn.Weapon.GetStateName() == 'SprayingFire';
+            weaponState= ownerPawn.Weapon.GetStateName();
+//            `Log("Weapon State: " $ weaponState, true, 'ServerAchievements');
+
+            weaponIsFiring= weaponState == 'WeaponSingleFiring' || weaponState == 'WeaponFiring' ||
+                    weaponState == 'WeaponBurstFiring' || weaponState == 'SprayingFire';
             if (!signalFire && weaponIsFiring) {
                 foreach achievementPacks(pack) {
                     pack.firedWeapon(ownerPawn.Weapon);
@@ -65,6 +66,17 @@ simulated event Tick(float DeltaTime) {
                     pack.stoppedFiringWeapon(ownerPawn.Weapon);
                 }
                 signalFire= false;
+            }
+
+            weaponIsSwinging= weaponState == 'MeleeAttackBasic' || weaponState == 'MeleeChainAttacking' ||
+                    weaponState == 'MeleeHeavyAttacking';
+            if (!signalSwing && weaponIsSwinging) {
+                foreach achievementPacks(pack) {
+                    pack.swungWeapon(ownerPawn.Weapon);
+                }
+                signalSwing= true;
+            } else if (signalSwing && !weaponIsSwinging) {
+                signalSwing= false;
             }
 
             weaponIsReloading= ownerPawn.Weapon.IsInState('Reloading');
