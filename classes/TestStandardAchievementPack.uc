@@ -57,7 +57,7 @@ event killedMonster(Pawn target, class<DamageType> damageType) {
 
     if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
         achievements[TestSapIndex.BLOODY_RUSSIANS].progress++;
-    } else if (ClassIsChildOf(damageType, class'KFDT_Slashing_Knife')) {
+    } else if (ClassIsChildOf(damageType, class'KFDT_Slashing_Knife') || ClassIsChildOf(damageType, class'KFDT_Piercing_KnifeStab')) {
         addProgress(TestSapIndex.SAVOR_EMOTIONS, 1);
     }
 }
