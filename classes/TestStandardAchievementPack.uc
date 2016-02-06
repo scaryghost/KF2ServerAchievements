@@ -5,7 +5,9 @@ enum TestSapIndex {
     AMMO_COLLECTOR,
     WATCH_YOUR_STEP,
     FIRE_IN_THE_HOLE,
-    BLOODY_RUSSIANS
+    BLOODY_RUSSIANS,
+    NOT_THE_FACE,
+    SAVOR_EMOTIONS
 };
 
 private function checkBloodyRussians(Weapon currentWeapon) {
@@ -55,6 +57,8 @@ event killedMonster(Pawn target, class<DamageType> damageType) {
 
     if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
         achievements[TestSapIndex.BLOODY_RUSSIANS].progress++;
+    } else if (ClassIsChildOf(damageType, class'KFDT_Slashing_Knife')) {
+        addProgress(TestSapIndex.SAVOR_EMOTIONS, 1);
     }
 }
 
@@ -64,8 +68,10 @@ event pickedUpItem(Actor item) {
     }
 }
 
-event damagedMonster(int damage, Pawn target, class<DamageType> damageType) {
-    `Log("Damaged a monster! " $ damageType, true, 'ServerAchievements');
+event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
+    if (headshot && ClassIsChildOf(damageType, class'KFDT_Bludgeon')) {
+        addProgress(TestSapIndex.NOT_THE_FACE, 1);
+    }
 }
 
 event swungWeapon(Weapon currentWeapon) {
@@ -79,4 +85,6 @@ defaultproperties
     achievements[2]=(maxProgress=10)
     achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
     achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
+    achievements[5]=(maxProgress=500)
+    achievements[6]=(maxProgress=500)
 }

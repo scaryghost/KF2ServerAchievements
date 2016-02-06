@@ -33,7 +33,7 @@ event stoppedFiringWeapon(Weapon currentWeapon);
 event swungWeapon(Weapon currentWeapon);
 event died(Controller killer, class<DamageType> damageType);
 event killedMonster(Pawn target, class<DamageType> damageType);
-event damagedMonster(int damage, Pawn target, class<DamageType> damageType);
+event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
 event pickedUpItem(Actor item);
 
 function serialize(out array<byte> objectState);

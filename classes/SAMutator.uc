@@ -1,4 +1,5 @@
 class SAMutator extends Engine.Mutator
+    dependson(SAReplicationInfo)
     config(ServerAchievements);
 
 var() config array<string> achievementPackClassnames;
@@ -61,19 +62,17 @@ function bool CheckReplacement(Actor Other) {
 function NetDamage(int OriginalDamage, out int Damage, Pawn Injured, Controller InstigatedBy, 
         vector HitLocation, out vector Momentum, class<DamageType> DamageType, Actor DamageCauser) {
     local SAReplicationInfo saRepInfo;
-    local array<AchievementPack> achievementPacks;
-    local AchievementPack it;
+    local HealthWatcher watcher;
 
     super.NetDamage(OriginalDamage, Damage, Injured, instigatedBy, HitLocation, Momentum, DamageType, 
             DamageCauser);
     if (Injured.IsA('KFPawn_Monster')) {
         saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy.PlayerReplicationInfo);
-        if (saRepInfo != none) {
-            saRepInfo.getAchievementPacks(achievementPacks);
-            foreach achievementPacks(it) {
-                it.damagedMonster(Damage, Injured, DamageType);
-            }
-        }
+        watcher.health= Injured.Health;
+        watcher.monster= KFPawn_Monster(Injured);
+        watcher.headHealth= watcher.monster.HitZones[HZI_HEAD].GoreHealth;
+        watcher.damageTypeClass= DamageType;
+        saRepInfo.damagedZeds.AddItem(watcher);
     }
 }
 

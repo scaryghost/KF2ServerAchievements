@@ -1,5 +1,13 @@
 class SAReplicationInfo extends ReplicationInfo;
 
+struct HealthWatcher {
+    var int health;
+    var int headHealth;
+    var class<DamageType> damageTypeClass;
+    var KFPawn_Monster monster;
+};
+
+var array<HealthWatcher> damagedZeds;
 var array<class<AchievementPack> > achievementPackClasses;
 var DataSource dataSrc;
 var PlayerReplicationInfo ownerPri;
@@ -10,6 +18,10 @@ var private array<AchievementPack> achievementPacks;
 replication {
     if (Role == ROLE_Authority)
         ownerPri;
+}
+
+event PostBeginPlay() {
+    SetTimer(0.5, true, 'checkMonsterHealth');
 }
 
 simulated event Tick(float DeltaTime) {
@@ -115,6 +127,28 @@ simulated event Tick(float DeltaTime) {
             foreach achievementPacks(pack) {
                 pack.matchEnded(info);
             }
+        }
+    }
+}
+
+function checkMonsterHealth() {
+    local int i, end, damage;
+    local AchievementPack it;
+    local bool headshot;
+
+    end= damagedZeds.Length;
+    while(i < end) {
+        if (damagedZeds[i].Health != damagedZeds[i].monster.Health) {
+            headshot= damagedZeds[i].monster.HitZones[HZI_HEAD].GoreHealth != damagedZeds[i].headHealth;
+            damage= damagedZeds[i].Health - damagedZeds[i].monster.Health;
+            foreach achievementPacks(it) {
+                it.damagedMonster(damage, damagedZeds[i].monster, damagedZeds[i].damageTypeClass, headshot);
+            }
+
+            damagedZeds.Remove(i, 1);
+            end--;
+        } else {
+            i++;
         }
     }
 }
