@@ -85,6 +85,6 @@ defaultproperties
     achievements[2]=(maxProgress=10)
     achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
     achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
-    achievements[5]=(maxProgress=500)
-    achievements[6]=(maxProgress=500)
+    achievements[5]=(maxProgress=100,notifyProgress=0.25)
+    achievements[6]=(maxProgress=500,notifyProgress=0.20)
 }
