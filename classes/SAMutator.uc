@@ -1,4 +1,4 @@
-class SAMutator extends Engine.Mutator
+class SAMutator extends KFGame.KFMutator
     dependson(SAReplicationInfo)
     config(ServerAchievements);
 
@@ -68,11 +68,13 @@ function NetDamage(int OriginalDamage, out int Damage, Pawn Injured, Controller 
             DamageCauser);
     if (Injured.IsA('KFPawn_Monster')) {
         saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy.PlayerReplicationInfo);
-        watcher.health= Injured.Health;
-        watcher.monster= KFPawn_Monster(Injured);
-        watcher.headHealth= watcher.monster.HitZones[HZI_HEAD].GoreHealth;
-        watcher.damageTypeClass= DamageType;
-        saRepInfo.damagedZeds.AddItem(watcher);
+        if (saRepInfo != None) {
+            watcher.health= Injured.Health;
+            watcher.monster= KFPawn_Monster(Injured);
+            watcher.headHealth= watcher.monster.HitZones[HZI_HEAD].GoreHealth;
+            watcher.damageTypeClass= DamageType;
+            saRepInfo.damagedZeds.AddItem(watcher);
+        }
     }
 }
 
