@@ -26,7 +26,7 @@ var PlayerController owner;
 
 var private array<AchievementPack> ownerAchvPacks;
 var private IntPoint MousePosition;
-var private bool menuOpen, leftButtonPressed, showHud;
+var private bool menuOpen, leftButtonPressed, rightButtonPressed, showHud;
 var private MobileMenuScene scene;
 var private Color DrawColor, CursorColor;
 var private Texture2D NotificationBackground, CursorTexture;
@@ -107,6 +107,8 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
     local MobileMenuObject it;
 
     leftButtonPressed= (Key == 'LeftMouseButton' && EventType == IE_Pressed);
+    rightButtonPressed= (Key == 'RightMouseButton' && EventType == IE_Pressed);
+
     if (leftButtonPressed && menuOpen) {
         foreach scene.MenuObjects(it) {
             if (CheckBounds(it)) {
@@ -123,7 +125,7 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
         return true;
     }
 
-    return false;
+    return rightButtonPressed;
 }
 
 function addMessage(PopupMessage newMessage) {
