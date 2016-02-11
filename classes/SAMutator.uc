@@ -15,6 +15,9 @@ function PostBeginPlay() {
     local class<DataSource> dataSourceClass;
 
     `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs");    
+    if (achievementPackClassnames.Length == 0) {
+        achievementPackClassnames.AddItem(PathName(class'TestStandardAchievementPack'));
+    }
     foreach achievementPackClassnames(it) {
         class'Arrays'.static.uniqueInsert(uniqueClassnames, it);
     }
@@ -26,11 +29,12 @@ function PostBeginPlay() {
             `Log("Successfully loaded" @ it);
             loadedAchievementPacks.AddItem(loadedPack);
         }
-    }    
+    }
 
     if (Len(dataSourceClassname) == 0) {
         `Warn("No data source specified, defaulting to ServerAchievements.FileDataSource");
         dataSrc= new class'FileDataSource';
+        dataSourceClassname= PathName(dataSrc.class);
     } else {
         dataSourceClass= class<DataSource>(DynamicLoadObject(dataSourceClassname, class'Class'));
         if (dataSourceClass == None) {
@@ -41,6 +45,8 @@ function PostBeginPlay() {
             dataSrc= new dataSourceClass;
         }
     }
+
+    SaveConfig();
 }
 
 function bool CheckReplacement(Actor Other) {
