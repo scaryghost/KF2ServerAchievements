@@ -125,7 +125,7 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
         return true;
     }
 
-    return rightButtonPressed;
+    return (menuOpen && rightButtonPressed);
 }
 
 function addMessage(PopupMessage newMessage) {
