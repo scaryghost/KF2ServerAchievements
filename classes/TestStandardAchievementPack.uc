@@ -12,11 +12,11 @@ enum TestSapIndex {
 };
 
 private function checkBloodyRussians(Weapon currentWeapon) {
-    if (!achievements[TestSapIndex.BLOODY_RUSSIANS].completed && currentWeapon.IsA('KFWeap_AssaultRifle_AK12') && !currentWeapon.HasAmmo(0)) {
-        if (achievements[TestSapIndex.BLOODY_RUSSIANS].progress == achievements[TestSapIndex.BLOODY_RUSSIANS].maxProgress) {
-            achievementCompleted(TestSapIndex.BLOODY_RUSSIANS);
+    if (!achievements[BLOODY_RUSSIANS].completed && currentWeapon.IsA('KFWeap_AssaultRifle_AK12') && !currentWeapon.HasAmmo(0)) {
+        if (achievements[BLOODY_RUSSIANS].progress == achievements[BLOODY_RUSSIANS].maxProgress) {
+            achievementCompleted(BLOODY_RUSSIANS);
         } else {
-            achievements[TestSapIndex.BLOODY_RUSSIANS].progress= 0;
+            achievements[BLOODY_RUSSIANS].progress= 0;
         }
     }
 }
@@ -39,11 +39,11 @@ event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
 }
 
 event reloadedWeapon(Weapon currentWeapon) {
-    achievements[TestSapIndex.BLOODY_RUSSIANS].progress= 0;
+    achievements[BLOODY_RUSSIANS].progress= 0;
 }
 
 event firedWeapon(Weapon currentWeapon) {
-    `Log("Fired my weapon! " $ currentWeapon.class, true, 'ServerAchievements');
+    `Log("Fired my weapon! " $ currentWeapon.class, false, 'ServerAchievements');
 }
 
 event stoppedFiringWeapon(Weapon currentWeapon) {
@@ -57,29 +57,30 @@ event died(Controller killer, class<DamageType> damageType) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType) {
-    addProgress(TestSapIndex.EXPERIMENTIMILLICIDE, 1);
+    addProgress(EXPERIMENTIMILLICIDE, 1);
 
     if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
-        achievements[TestSapIndex.BLOODY_RUSSIANS].progress++;
+        achievements[BLOODY_RUSSIANS].progress++;
     } else if (ClassIsChildOf(damageType, class'KFDT_Slashing_Knife') || ClassIsChildOf(damageType, class'KFDT_Piercing_KnifeStab')) {
-        addProgress(TestSapIndex.SAVOR_EMOTIONS, 1);
+        addProgress(SAVOR_EMOTIONS, 1);
     }
 }
 
 event pickedUpItem(Actor item) {
     if (item.IsA('KFPickupFactory_Ammo')) {
-        addProgress(TestSapIndex.AMMO_COLLECTOR, 1);
+        addProgress(AMMO_COLLECTOR, 1);
     }
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
+    `Log("Damaged a monster! " $ damage $ ", Damage Type: " $ damageType, false, 'ServerAchievements');
     if (headshot && ClassIsChildOf(damageType, class'KFDT_Bludgeon')) {
-        addProgress(TestSapIndex.NOT_THE_FACE, 1);
+        addProgress(NOT_THE_FACE, 1);
     }
 }
 
 event swungWeapon(Weapon currentWeapon) {
-    `Log("Swinging weapon: " $ currentWeapon);
+    `Log("Swinging weapon: " $ currentWeapon, false, 'ServerAchievements');
 }
 
 defaultproperties
