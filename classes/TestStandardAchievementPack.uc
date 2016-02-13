@@ -7,7 +7,8 @@ enum TestSapIndex {
     FIRE_IN_THE_HOLE,
     BLOODY_RUSSIANS,
     NOT_THE_FACE,
-    SAVOR_EMOTIONS
+    SAVOR_EMOTIONS,
+    MERDE
 };
 
 private function checkBloodyRussians(Weapon currentWeapon) {
@@ -22,6 +23,9 @@ private function checkBloodyRussians(Weapon currentWeapon) {
 
 event matchEnded(const out MatchInfo info) {
     `Log("Match is over! name=" $ info.mapName $ ", difficult= " $ info.difficulty $ ", length= " $ info.length $ ", result= " $ info.result);
+    if (info.result == SA_MR_LOST && Locs(info.mapName) == "kf-burningparis") {
+        addProgress(MERDE, 1);
+    }
 }
 
 event waveStarted(byte newWave, byte waveMax) {
@@ -87,4 +91,5 @@ defaultproperties
     achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
     achievements[5]=(maxProgress=100,notifyProgress=0.25)
     achievements[6]=(maxProgress=500,notifyProgress=0.20)
+    achievements[7]=(maxProgress=10)
 }
