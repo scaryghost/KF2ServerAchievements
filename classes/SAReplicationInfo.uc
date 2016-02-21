@@ -20,6 +20,17 @@ replication {
         ownerPri;
 }
 
+event Destroyed() {
+    local AchievementPack it;
+
+    foreach achievementPacks(it) {
+        it.Destroy();
+    }
+    achievementPacks.Length= 0;
+
+    super.Destroyed();
+}
+
 event PostBeginPlay() {
     SetTimer(0.5, true, 'checkMonsterHealth');
 }
@@ -35,6 +46,7 @@ simulated event Tick(float DeltaTime) {
     local Name weaponState;
 
     if (!initialized) {
+        `Log("My owner: " $ Owner);
         if (Role == ROLE_Authority) {
             foreach achievementPackClasses(it) {
                 addAchievementPack(Spawn(it, Owner));
@@ -42,13 +54,13 @@ simulated event Tick(float DeltaTime) {
 
             dataSrc.retrieveAchievementState(ownerPri.UniqueId, achievementPacks);
         }
-
+        
         localController= GetALocalPlayerController();
         if (localController != none) {
+            `Log("Local Controller: " $ localController);
             foreach DynamicActors(class'AchievementPack', pack) {
-                if (pack.Owner == Owner) {
-                    addAchievementPack(pack);
-                }
+                `Log("Pack's owner: " $ pack.Owner);
+                addAchievementPack(pack);
             }
 
             newInteraction= new class'SAInteraction';
@@ -60,6 +72,11 @@ simulated event Tick(float DeltaTime) {
     }
 
     if (Role == ROLE_Authority) {
+        if (Owner == None) {
+            Destroy();
+            return;
+        }
+
         ownerPawn= KFPawn(Controller(Owner).Pawn);
 
         if (ownerPawn != None && ownerPawn.Weapon != none) {

@@ -53,7 +53,7 @@ function bool CheckReplacement(Actor Other) {
     local PlayerReplicationInfo pri;
     local SAReplicationInfo saRepInfo;
 
-    if (PlayerReplicationInfo(Other) != none && Other.Owner.IsA('PlayerController') && 
+    if (PlayerReplicationInfo(Other) != none && Other.Owner != None && Other.Owner.IsA('PlayerController') && 
             PlayerController(Other.Owner).bIsPlayer) {
         pri= PlayerReplicationInfo(Other);
 
