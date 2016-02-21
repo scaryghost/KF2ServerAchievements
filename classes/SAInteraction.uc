@@ -50,7 +50,7 @@ exec function toggleAchievementMenu() {
         scene= mbPlayerInput.OpenMenuScene(class'AchievementMenuScene');
 
         if (ownerAchvPacks.Length == 0) {
-            saRepInfo= class'SAReplicationInfo'.static.findSAri(owner.PlayerReplicationInfo);
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(owner);
             saRepInfo.getAchievementPacks(ownerAchvPacks);
         }
         AchievementMenuScene(scene).achievementPacks= ownerAchvPacks;

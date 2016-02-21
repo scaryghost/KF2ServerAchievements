@@ -58,7 +58,6 @@ function bool CheckReplacement(Actor Other) {
         pri= PlayerReplicationInfo(Other);
 
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
-        saRepInfo.ownerPri= pri;
         saRepInfo.dataSrc= dataSrc;
         saRepInfo.achievementPackClasses= loadedAchievementPacks;
     }
@@ -73,7 +72,7 @@ function NetDamage(int OriginalDamage, out int Damage, Pawn Injured, Controller 
     super.NetDamage(OriginalDamage, Damage, Injured, instigatedBy, HitLocation, Momentum, DamageType, 
             DamageCauser);
     if (Injured.IsA('KFPawn_Monster')) {
-        saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy.PlayerReplicationInfo);
+        saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy);
         if (saRepInfo != None) {
             watcher.health= Injured.Health;
             watcher.monster= KFPawn_Monster(Injured);
@@ -92,7 +91,7 @@ function bool OverridePickupQuery(Pawn Other, class<Inventory> ItemClass, Actor 
 
     result= super.OverridePickupQuery(Other, ItemClass, Pickup, bAllowPickup);
     if (!result || (result && bAllowPickup != 0)) {
-        saRepInfo= class'SAReplicationInfo'.static.findSAri(Other.PlayerReplicationInfo);
+        saRepInfo= class'SAReplicationInfo'.static.findSAri(Other.Controller);
         if (saRepInfo != none) {
             saRepInfo.getAchievementPacks(achievementPacks);
             foreach achievementPacks(it) {
@@ -110,7 +109,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
 
 	if (!super.PreventDeath(Killed, Killer, damageType, HitLocation)) {
         if (Killed.IsA('KFPawn_Human')) {
-            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killed.PlayerReplicationInfo);
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killed.Controller);
             if (saRepInfo != none) {
                 saRepInfo.getAchievementPacks(achievementPacks);
                 foreach achievementPacks(it) {
@@ -118,7 +117,7 @@ function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> dam
                 }
             }
         } else if (Killer.IsA('KFPlayerController')) {
-            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killer.PlayerReplicationInfo);
+            saRepInfo= class'SAReplicationInfo'.static.findSAri(Killer);
             
             if (saRepInfo != none) {
                 saRepInfo.getAchievementPacks(achievementPacks);
@@ -160,7 +159,7 @@ function NotifyLogout(Controller Exiting) {
 
     super.NotifyLogout(Exiting);
 
-    saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting.PlayerReplicationInfo);
+    saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting);
     saRepInfo.getAchievementPacks(packs);
-    dataSrc.saveAchievementState(saRepInfo.ownerPri.UniqueId, packs);
+    dataSrc.saveAchievementState(PlayerController(saRepInfo.Owner).PlayerReplicationInfo.UniqueId, packs);
 }

@@ -10,15 +10,9 @@ struct HealthWatcher {
 var array<HealthWatcher> damagedZeds;
 var array<class<AchievementPack> > achievementPackClasses;
 var DataSource dataSrc;
-var PlayerReplicationInfo ownerPri;
 
 var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing, handledGameEnded;
 var private array<AchievementPack> achievementPacks;
-
-replication {
-    if (Role == ROLE_Authority)
-        ownerPri;
-}
 
 event Destroyed() {
     local AchievementPack it;
@@ -46,20 +40,18 @@ simulated event Tick(float DeltaTime) {
     local Name weaponState;
 
     if (!initialized) {
-        `Log("My owner: " $ Owner);
         if (Role == ROLE_Authority) {
             foreach achievementPackClasses(it) {
                 addAchievementPack(Spawn(it, Owner));
             }
 
-            dataSrc.retrieveAchievementState(ownerPri.UniqueId, achievementPacks);
+            dataSrc.retrieveAchievementState(PlayerController(Owner).PlayerReplicationInfo.UniqueId, achievementPacks);
         }
         
         localController= GetALocalPlayerController();
         if (localController != none) {
-            `Log("Local Controller: " $ localController);
+            SetOwner(localController);
             foreach DynamicActors(class'AchievementPack', pack) {
-                `Log("Pack's owner: " $ pack.Owner);
                 addAchievementPack(pack);
             }
 
@@ -187,14 +179,14 @@ simulated function getAchievementPacks(out array<AchievementPack> packs) {
     }
 }
 
-static function SAReplicationInfo findSAri(PlayerReplicationInfo pri) {
+static function SAReplicationInfo findSAri(Controller saRepOwner) {
     local SAReplicationInfo repInfo;
 
-    if (pri == none)
+    if (saRepOwner == none)
         return none;
 
-    foreach pri.DynamicActors(class'SAReplicationInfo', repInfo)
-        if (repInfo.ownerPri == pri) {
+    foreach saRepOwner.DynamicActors(class'SAReplicationInfo', repInfo)
+        if (repInfo.Owner == saRepOwner) {
             return repInfo;
         }
  
