@@ -1,3 +1,7 @@
+/**
+ * Handles the UI aspects of the mutator
+ * @author Eric Tsai (scaryghost)
+ */
 class SAInteraction extends Interaction
     config(Input);
 
@@ -6,21 +10,28 @@ const PHASE_SHOWING= 0;
 const PHASE_DELAYING= 1;
 const PHASE_HIDING= 2;
 
+/**
+ * Enumeration of available positions for popup notifications
+ */
 enum PopupPosition {
-    PP_BOTTOM_CENTER,
-    PP_BOTTOM_LEFT,
-    PP_BOTTOM_RIGHT,
-    PP_TOP_CENTER,
-    PP_TOP_LEFT,
-    PP_TOP_RIGHT
+    PP_BOTTOM_CENTER,       ///< Default position, bottom and center
+    PP_BOTTOM_LEFT,         ///< Bottom and left
+    PP_BOTTOM_RIGHT,        ///< Bottom and right
+    PP_TOP_CENTER,          ///< Pop down top and center
+    PP_TOP_LEFT,            ///< Pop down top and left
+    PP_TOP_RIGHT            ///< Pop down top and right
 };
 
+/**
+ * Tuple containing the attributes of popup message
+ */
 struct PopupMessage {
-    var string header;
-    var string body;
-    var Texture2D image;
+    var string header;          ///< Header to display at the top
+    var string body;            ///< Content of the message
+    var Texture2D image;        ///< Image to display with the message
 };
 
+/** Where to display popup messagse on the screen, defaults to bottom and center */
 var globalconfig PopupPosition msgPosition;
 var PlayerController owner;
 
@@ -34,8 +45,12 @@ var private float NotificationWidth, NotificationHeight, NotificationPhaseStartT
         NotificationShowTime, NotificationHideTime, NotificationHideDelay, NotificationBorderSize;
 var private int NotificationPhase;
 var private array<PopupMessage> messageQueue;
+/** Character indicating a newline should be inserted */
 var privatewrite string newLineSeparator;
 
+/**
+ * Opens and closes the achievement progress menu
+ */
 exec function toggleAchievementMenu() {
     local SAReplicationInfo saRepInfo;
     local MobilePlayerInput mbPlayerInput;
@@ -63,6 +78,8 @@ exec function toggleAchievementMenu() {
     }
 }
 
+// Function is a modification of the code provided from this thread:
+// https://forums.epicgames.com/threads/817252-Creating-Menus-Buttons-Using-Canvas
 function bool CheckBounds(MobileMenuObject menuObject) {
     local float FinalRangeX, FinalRangeY, actualTop, actualLeft;
 
@@ -128,7 +145,11 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
     return (menuOpen && rightButtonPressed);
 }
 
-function addMessage(PopupMessage newMessage) {
+/**
+ * Adds a message to be displayed as a popup
+ * @param newMessage        Message to be displayed
+ */
+function addMessage(const out PopupMessage newMessage) {
     messageQueue.AddItem(newMessage);
 
     if (messageQueue.Length == 1) {
@@ -157,6 +178,8 @@ event PostRender(Canvas Canvas) {
         return;
     }
 
+    // Popup code taken from KFMod.HUDKillingFloor (KF1 code)
+    // Modifications made to enable popup placement in 6 locations
     TimeElapsed= class'WorldInfo'.static.GetWorldInfo().TimeSeconds - NotificationPhaseStartTime;
     switch(NotificationPhase) {
         case PHASE_SHOWING:

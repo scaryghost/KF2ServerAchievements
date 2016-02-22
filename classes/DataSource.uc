@@ -1,7 +1,20 @@
+/**
+ * Abstract class defining the 
+ */
 class DataSource extends Object
     abstract;
 
+/**
+ * Retrieve serialized data from disk and restore achieveemnt state
+ * @param ownerSteamId          SteamID of the player owning the achievement packs
+ * @param packs                 Achievement packs to deserialize
+ */
 function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
+/**
+ * Serialize and save the the achievement state to disk
+ * @param ownerSteamId          SteamID of the player owning the achievement packs
+ * @param packs                 Achievement packs to save to disk
+ */
 function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
 
 static function string byteArrayToHexString(const out array<byte> byteArray) {

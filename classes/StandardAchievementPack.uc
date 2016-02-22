@@ -1,18 +1,29 @@
+/**
+ * Partial implementation of the AchievementPack class providing the framework to store and serialize 
+ * achievement data, and send notifications to the player.
+ * @author Eric Tsai (scaryghost)
+ */
 class StandardAchievementPack extends AchievementPack
     abstract
     dependson(SAInteraction);
 
+/**
+ * Extension of the Achievement struct adding extra properties for controlling 
+ * how the progress variable is used and localizing the title and description variables
+ */
 struct StandardAchievement extends Achievement {
-    var localized string title;
-    var localized string description;
-    var float notifyProgress;
-    var int nextProgress;
-    var bool discardProgress;
+    var localized string title;                 ///< Achievement title, must be set in localization file
+    var localized string description;           ///< Achievement description, must be set in localization file
+    var float notifyProgress;                   ///< How often to send updates to the player for achievement
+    var int nextProgress;                       ///< Next progress value when the player should get updated
+    var bool discardProgress;                   ///< True if achievement progress should not be serialized
 };
 
+/** Actor owner typecasted as KFPlayerController */
 var protectedwrite KFPlayerController ownerController;
 var protectedwrite PlayerController localController;
 var protectedwrite array<StandardAchievement> achievements;
+/** Name of the achievement pack, must be set in localization file */
 var protectedwrite localized String packName;
 var protectedwrite Texture2D defaultAchievementImage;
 
@@ -103,11 +114,21 @@ simulated function String attrName() {
     return packName;
 }
 
+/**
+ * Update the achievement state on the client side
+ * @param index         Achievement index to update
+ * @param progress      New progress 
+ * @param completed     New completion state
+ */
 reliable client function flushToClient(int index, int progress, bool completed) {
     achievements[index].progress= progress;
     achievements[index].completed= completed;
 }
 
+/**
+ * Update the player of achievement progress with a popup message
+ * @param index         Achievement index to notify the player of
+ */
 reliable client function notifyProgress(int index) {
     local int i;
     local Texture2D usedImage;
@@ -130,6 +151,10 @@ reliable client function notifyProgress(int index) {
     }
 }
 
+/**
+ * Updates the player that an achievement is completed with a popup message
+ * @param index         Achievement index to notify the player of
+ */
 reliable client function localAchievementCompleted(int index) {
     local int i;
     local Texture2D usedImage;
@@ -151,6 +176,10 @@ reliable client function localAchievementCompleted(int index) {
     }
 }
 
+/**
+ * Marks an achievement as completed
+ * @param index         Achievement index to flag as complete
+ */
 function protected achievementCompleted(int index) {
     if (!achievements[index].completed) {
         achievements[index].completed= true;
@@ -159,6 +188,11 @@ function protected achievementCompleted(int index) {
     }
 }
 
+/**
+ * Adds an offset to the achievement progress
+ * @param index         Achievement index to update
+ * @param offset        Offset to add to the progress
+ */
 function protected addProgress(int index, int offset) {
     achievements[index].progress+= offset;
     if (achievements[index].progress >= achievements[index].maxProgress) {
@@ -181,6 +215,10 @@ function protected addProgress(int index, int offset) {
     }
 }
 
+/**
+ * Reset achievement progress to 0 and mark completed property as false
+ * @param index     Achievement index to update
+ */
 function protected resetProgress(int index) {
     achievements[index].progress= 0;
     achievements[index].notifyProgress= 0;
