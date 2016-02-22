@@ -22,7 +22,6 @@ private function checkBloodyRussians(Weapon currentWeapon) {
 }
 
 event matchEnded(const out MatchInfo info) {
-    `Log("Match is over! name=" $ info.mapName $ ", difficult= " $ info.difficulty $ ", length= " $ info.length $ ", result= " $ info.result);
     if (info.result == SA_MR_LOST && Locs(info.mapName) == "kf-burningparis") {
         addProgress(MERDE, 1);
     }
@@ -40,10 +39,6 @@ event tossedGrenade(class<KFProj_Grenade> grenadeClass) {
 
 event reloadedWeapon(Weapon currentWeapon) {
     achievements[BLOODY_RUSSIANS].progress= 0;
-}
-
-event firedWeapon(Weapon currentWeapon) {
-    `Log("Fired my weapon! " $ currentWeapon.class, false, 'ServerAchievements');
 }
 
 event stoppedFiringWeapon(Weapon currentWeapon) {
@@ -73,14 +68,9 @@ event pickedUpItem(Actor item) {
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
-    `Log("Damaged a monster! " $ damage $ ", Damage Type: " $ damageType, false, 'ServerAchievements');
     if (headshot && ClassIsChildOf(damageType, class'KFDT_Bludgeon')) {
         addProgress(NOT_THE_FACE, 1);
     }
-}
-
-event swungWeapon(Weapon currentWeapon) {
-    `Log("Swinging weapon: " $ currentWeapon, false, 'ServerAchievements');
 }
 
 defaultproperties

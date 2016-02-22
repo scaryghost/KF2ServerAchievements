@@ -14,7 +14,7 @@ function PostBeginPlay() {
     local string it;    
     local class<DataSource> dataSourceClass;
 
-    `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs");    
+    `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs", true, 'ServerAchievements');    
     if (achievementPackClassnames.Length == 0) {
         achievementPackClassnames.AddItem(PathName(class'TestStandardAchievementPack'));
     }
@@ -24,22 +24,22 @@ function PostBeginPlay() {
     foreach uniqueClassnames(it) {
         loadedPack= class<AchievementPack>(DynamicLoadObject(it, class'Class'));
         if (loadedPack == none) {
-            `Warn("Failed to load achievement pack" @ it);
+            `Warn("Failed to load achievement pack" @ it, true, 'ServerAchievements');
         } else {
-            `Log("Successfully loaded" @ it);
+            `Log("Successfully loaded" @ it, true, 'ServerAchievements');
             loadedAchievementPacks.AddItem(loadedPack);
         }
     }
 
     if (Len(dataSourceClassname) == 0) {
-        `Warn("No data source specified, defaulting to ServerAchievements.FileDataSource");
+        `Warn("No data source specified, defaulting to ServerAchievements.FileDataSource", true, 'ServerAchievements');
         dataSrc= new class'FileDataSource';
         dataSourceClassname= PathName(dataSrc.class);
     } else {
         dataSourceClass= class<DataSource>(DynamicLoadObject(dataSourceClassname, class'Class'));
         if (dataSourceClass == None) {
-            `Warn("Cannot load DataSource class:" @ dataSourceClassname);
-            `Warn("Defaulting to ServerAchievements.FileDataSource");
+            `Warn("Cannot load DataSource class:" @ dataSourceClassname, true, 'ServerAchievements');
+            `Warn("Defaulting to ServerAchievements.FileDataSource", true, 'ServerAchievements');
             dataSrc= new class'FileDataSource'; 
         } else {
             dataSrc= new dataSourceClass;
