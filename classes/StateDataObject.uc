@@ -11,12 +11,12 @@ var config array<AchievementState> localSavedState;
 
 function array<byte> getSerializedData(string classname) {
     local array<byte> empty;
-    local AchievementState it;
+    local int i;
 
     empty.Length= 0;
-    foreach localSavedState(it) {
-        if (it.packClassname == classname) {
-            return it.serializedValue;
+    for(i= 0; i < localSavedState.Length; i++) {
+        if (localSavedState[i].packClassname == classname) {
+            return localSavedState[i].serializedValue;
         }
     }
 
@@ -24,12 +24,13 @@ function array<byte> getSerializedData(string classname) {
 }
 
 function updateSerializedData(string classname, const out array<byte> savedState) {
-    local AchievementState it, newItem;
+    local AchievementState newItem;
+    local int i;
 
     if (savedState.Length > 0) {
-        foreach localSavedState(it) {
-            if (it.packClassname == classname) {
-                it.serializedValue= savedState;
+        for(i= 0; i < localSavedState.Length; i++) {
+            if (localSavedState[i].packClassname == classname) {
+                localSavedState[i].serializedValue= savedState;
                 return;
             }
         }
