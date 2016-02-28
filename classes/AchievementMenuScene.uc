@@ -1,7 +1,7 @@
 class AchievementMenuScene extends MobileMenuScene;
 
 var private MobileMenuList achievementList;
-var private MobileMenuLabel achievementPackLabel;
+var private AchievementMenuTitle achievementPackLabel;
 var array<AchievementPack> achievementPacks;
 var int currAchvIndex;
 
@@ -28,6 +28,7 @@ function refreshAchievementLabel() {
         achievementPacks[currAchvIndex].lookupAchievement(i, item.achv);
         achievementList.AddItem(item);
     }
+    achievementList.SetSelectedItem(0);
 }
 
 function prevAchievement() {
@@ -109,7 +110,7 @@ defaultproperties
         Width=0.15
         Height=0.05
         Left=0.80
-        Top=0.037916
+        Top=0.055
         Images[0]=Texture2D'EditorResources.RedSquareTexture'
         Caption="Next"
         CaptionColor=(r=1.0,g=1.0,b=1.0,a=1.0)
@@ -125,7 +126,7 @@ defaultproperties
         Width=0.15
         Height=0.05
         Left=0.05
-        Top=0.037916
+        Top=0.055
         Images[0]=Texture2D'EditorResources.RedSquareTexture'
         Caption="Previous"
         CaptionColor=(r=1.0,g=1.0,b=1.0,a=1.0)
@@ -133,7 +134,7 @@ defaultproperties
     End Object
     MenuObjects.Add(PrevAchvBtn)
 
-    Begin Object class=MobileMenuLabel Name=AchvPackLabelSubObj
+    Begin Object class=AchievementMenuTitle Name=AchvPackLabelSubObj
         bRelativeLeft=true;
         bRelativeTop=true;
         bRelativeWidth=true;
