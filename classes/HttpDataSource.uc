@@ -4,7 +4,7 @@ class HttpDataSource extends DataSource
 var() config string httpHostname;
 var private array<AchievementPack> pendingPacks;
 
-function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
+function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
     local array<string> queryParts;
     local string query, steamIdString;
     local AchievementPack it;
@@ -30,7 +30,7 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
     }
 }
 
-function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
+function saveAchievementState(const out UniqueNetId ownerSteamId, const out array<AchievementPack> packs) {
     local array<byte> objectState;
     local array<string> queryParts;
     local string query, steamIdString;

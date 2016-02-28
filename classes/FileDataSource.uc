@@ -1,6 +1,6 @@
 class FileDataSource extends DataSource;
 
-function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
+function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
     local array<byte> objectState;
     local string steamIdString;
     local AchievementPack it;
@@ -14,7 +14,7 @@ function retrieveAchievementState(UniqueNetId ownerSteamId, out array<Achievemen
     }
 }
 
-function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
+function saveAchievementState(const out UniqueNetId ownerSteamId, const out array<AchievementPack> packs) {
     local array<byte> objectState;
     local String steamIdString;
     local AchievementPack it;

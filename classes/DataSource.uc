@@ -9,13 +9,13 @@ class DataSource extends Object
  * @param ownerSteamId          SteamID of the player owning the achievement packs
  * @param packs                 Achievement packs to deserialize
  */
-function retrieveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
+function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<AchievementPack> packs);
 /**
  * Serialize and save the the achievement state to disk
  * @param ownerSteamId          SteamID of the player owning the achievement packs
  * @param packs                 Achievement packs to save to disk
  */
-function saveAchievementState(UniqueNetId ownerSteamId, out array<AchievementPack> packs);
+function saveAchievementState(const out UniqueNetId ownerSteamId, const out array<AchievementPack> packs);
 
 static function string byteArrayToHexString(const out array<byte> byteArray) {
     local byte it, lowBits, highBits;
