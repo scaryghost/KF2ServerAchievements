@@ -5,9 +5,9 @@ achievements[1]=(title="Ammo Collector",description="Collect 15 ammo boxes in a 
 achievements[2]=(title="Watch Your Step",description="Die from fall damage 10 times")
 achievements[3]=(title="Fire in the Hole",description="Toss 5 grenades in a wave")
 achievements[4]=(title="Bloody Russians",description="Empty an AK-12 mag and kill only 1 specimen")
-achievements[5]=(title="Not the Face!",description="Bludgeon 100 specimens in the face with your guns")
-achievements[6]=(title="Savor the Emotions",description="Kill 500 specimens with knives")
-achievements[7]=(title="Merde!",description="Lose on Burning Paris 10 times")
+achievements[5]=(title="Not the Face!",description="Bludgeon 50 specimens in the face with your guns")
+achievements[6]=(title="Savor the Emotions",description="Kill 100 specimens with knives")
+achievements[7]=(title="Merde!",description="Lose on Burning Paris")
 
 [StandardAchievementPack]
 achvUnlockedMsg="Achievement Unlocked"

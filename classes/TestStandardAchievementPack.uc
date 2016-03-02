@@ -23,7 +23,7 @@ private function checkBloodyRussians(Weapon currentWeapon) {
 
 event matchEnded(const out MatchInfo info) {
     if (info.result == SA_MR_LOST && Locs(info.mapName) == "kf-burningparis") {
-        addProgress(MERDE, 1);
+        achievementCompleted(MERDE);
     }
 }
 
@@ -80,7 +80,7 @@ defaultproperties
     achievements[2]=(maxProgress=10)
     achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
     achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
-    achievements[5]=(maxProgress=100,notifyProgress=0.25)
-    achievements[6]=(maxProgress=500,notifyProgress=0.20)
-    achievements[7]=(maxProgress=10)
+    achievements[5]=(maxProgress=50,notifyProgress=0.25)
+    achievements[6]=(maxProgress=100,notifyProgress=0.20)
+    achievements[7]=(hideProgress=true)
 }
