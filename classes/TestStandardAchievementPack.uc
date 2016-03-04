@@ -75,12 +75,12 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 
 defaultproperties
 {
-    achievements[0]=(maxProgress=1000,notifyProgress=0.25)
+    achievements[0]=(maxProgress=1000,nNotifies=4)
     achievements[1]=(maxProgress=15,hideProgress=true,discardProgress=true)
     achievements[2]=(maxProgress=10)
     achievements[3]=(maxProgress=5,hideProgress=true,discardProgress=true)
     achievements[4]=(maxProgress=1,hideProgress=true,discardProgress=true)
-    achievements[5]=(maxProgress=50,notifyProgress=0.25)
-    achievements[6]=(maxProgress=100,notifyProgress=0.20)
-    achievements[7]=(hideProgress=true)
+    achievements[5]=(maxProgress=50,nNotifies=2)
+    achievements[6]=(maxProgress=100,nNotifies=4)
+    achievements[7]=(hideProgress=true,discardProgress=true)
 }

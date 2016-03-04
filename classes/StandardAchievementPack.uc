@@ -14,7 +14,7 @@ class StandardAchievementPack extends AchievementPack
 struct StandardAchievement extends Achievement {
     var localized string title;                 ///< Achievement title, must be set in localization file
     var localized string description;           ///< Achievement description, must be set in localization file
-    var float notifyProgress;                   ///< How often to send updates to the player for achievement
+    var byte nNotifies;                         ///< How often to send updates to the player for achievement
     var int nextProgress;                       ///< Next progress value when the player should get updated
     var bool discardProgress;                   ///< True if achievement progress should not be serialized
 };
@@ -65,8 +65,8 @@ function deserialize(const out array<byte> objectState) {
             i+= 4;
 
             achievements[j].completed= achievements[j].progress >= achievements[j].maxProgress;
-            if (!achievements[j].completed && achievements[j].maxProgress != 0 && achievements[j].notifyProgress != 0) {
-                notifyStep= achievements[j].maxProgress * achievements[j].notifyProgress;
+            if (!achievements[j].completed && achievements[j].maxProgress != 0 && achievements[j].nNotifies != 0) {
+                notifyStep= achievements[j].maxProgress * (1.0 / achievements[j].nNotifies);
                 count= achievements[j].progress / notifyStep;
                 achievements[j].nextProgress= (count + 1) * notifyStep;
             }
@@ -202,14 +202,14 @@ function protected addProgress(int index, int offset) {
             flushToClient(index, achievements[index].progress, achievements[index].completed);
         }
 
-        if (achievements[index].notifyProgress != 0) {
+        if (achievements[index].nNotifies != 0) {
             if (achievements[index].nextProgress == 0) {
-                achievements[index].nextProgress= achievements[index].maxProgress * achievements[index].notifyProgress;
+                achievements[index].nextProgress= achievements[index].maxProgress * (1.0 / achievements[index].nNotifies);
             }
 
             if (achievements[index].progress >= achievements[index].nextProgress) {
                 notifyProgress(index);
-                achievements[index].nextProgress+= achievements[index].maxProgress * achievements[index].notifyProgress;
+                achievements[index].nextProgress+= achievements[index].maxProgress * (1.0 / achievements[index].nNotifies);
             }
         }
     }
@@ -221,7 +221,7 @@ function protected addProgress(int index, int offset) {
  */
 function protected resetProgress(int index) {
     achievements[index].progress= 0;
-    achievements[index].notifyProgress= 0;
+    achievements[index].nextProgress= 0;
     achievements[index].completed= false;
 
     if (!achievements[index].hideProgress) {

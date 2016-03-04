@@ -13,9 +13,9 @@ struct Achievement {
     var string title;               ///< Achievement title
     var string description;         ///< Achievement description
     var Texture2D image;            ///< Achievement image
-    var bool hideProgress;          ///< True if progress is hidden from the player aka no progress bar
     var int maxProgress;            ///< Max progress to reach before achievement is completed
     var int progress;               ///< Current achievement progress
+    var bool hideProgress;          ///< True if progress is hidden from the player aka no progress bar
     var bool completed;             ///< True if achievement is completed
 };
 
