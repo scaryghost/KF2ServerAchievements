@@ -3,16 +3,16 @@ class SAMutator extends KFGame.KFMutator
     config(ServerAchievements);
 
 var() config array<string> achievementPackClassnames;
-var() config string dataSourceClassname;
+var() config string dataLinkClassname;
 
 var private array<class<AchievementPack> > loadedAchievementPacks;
-var private DataSource dataSrc;
+var private DataLink dataLnk;
 
 function PostBeginPlay() {
     local class<AchievementPack> loadedPack;    
     local array<string> uniqueClassnames;
     local string it;    
-    local class<DataSource> dataSourceClass;
+    local class<DataLink> dataLinkClass;
 
     `Log("Attempting to load" @ achievementPackClassnames.Length @ "achievement packs", true, 'ServerAchievements');    
     if (achievementPackClassnames.Length == 0) {
@@ -31,18 +31,18 @@ function PostBeginPlay() {
         }
     }
 
-    if (Len(dataSourceClassname) == 0) {
-        `Warn("No data source specified, defaulting to ServerAchievements.FileDataSource", true, 'ServerAchievements');
-        dataSrc= new class'FileDataSource';
-        dataSourceClassname= PathName(dataSrc.class);
+    if (Len(dataLinkClassname) == 0) {
+        `Warn("No data link specified, defaulting to ServerAchievements.FileDataLink", true, 'ServerAchievements');
+        dataLnk= new class'FileDataLink';
+        dataLinkClassname= PathName(dataLnk.class);
     } else {
-        dataSourceClass= class<DataSource>(DynamicLoadObject(dataSourceClassname, class'Class'));
-        if (dataSourceClass == None) {
-            `Warn("Cannot load DataSource class:" @ dataSourceClassname, true, 'ServerAchievements');
-            `Warn("Defaulting to ServerAchievements.FileDataSource", true, 'ServerAchievements');
-            dataSrc= new class'FileDataSource'; 
+        dataLinkClass= class<DataLink>(DynamicLoadObject(dataLinkClassname, class'Class'));
+        if (dataLinkClass == None) {
+            `Warn("Cannot load DataLink class:" @ dataLinkClassname, true, 'ServerAchievements');
+            `Warn("Defaulting to ServerAchievements.FileDataLink", true, 'ServerAchievements');
+            dataLnk= new class'FileDataLink'; 
         } else {
-            dataSrc= new dataSourceClass;
+            dataLnk= new dataLinkClass;
         }
     }
 
@@ -58,7 +58,7 @@ function bool CheckReplacement(Actor Other) {
         pri= PlayerReplicationInfo(Other);
 
         saRepInfo= Spawn(class'SAReplicationInfo', pri.Owner);
-        saRepInfo.dataSrc= dataSrc;
+        saRepInfo.dataLnk= dataLnk;
         saRepInfo.achievementPackClasses= loadedAchievementPacks;
     }
     return super.CheckReplacement(Other);
@@ -161,5 +161,5 @@ function NotifyLogout(Controller Exiting) {
 
     saRepInfo= class'SAReplicationInfo'.static.findSAri(Exiting);
     saRepInfo.getAchievementPacks(packs);
-    dataSrc.saveAchievementState(PlayerController(saRepInfo.Owner).PlayerReplicationInfo.UniqueId, packs);
+    dataLnk.saveAchievementState(PlayerController(saRepInfo.Owner).PlayerReplicationInfo.UniqueId, packs);
 }

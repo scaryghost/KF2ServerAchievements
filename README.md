@@ -19,7 +19,7 @@ to manage achievement progress.  Running the mutator once will create the ini fi
 ```ini
 [ServerAchievements.SAmutator]
 achievementPackClassnames=ServerAchievements.TestStandardAchievementPack
-dataSourceClassname=ServerAchievements.FileDataSource
+dataLinkClassname=ServerAchievements.FileDataLink
 ```
 
 ## Loading Achievement Packs
@@ -37,33 +37,33 @@ Users can create their own achievement packs by extending the StandardAchievemen
 in progress.  In the meantime, check out the TestStandardAchievementPack class for an example on how to create custom achievements.
 
 ## Saving Achievement Progress
-Managing achievement progress is done with the DataSource abstract class.  The ServerAchievements package comes with two implementations 
-of the abstract class, providing progress management with an ini file (FileDataSource) or a remote server (HttpDataSource).  You can 
-configure which data source to use with the **dataSourceClassname** variable in the ini file.  If the dataSourceClassname variable is 
-not set, the mutator will default to using the FileDataSource implementation.
+Managing achievement progress is done with the DataLink abstract class.  The ServerAchievements package comes with two implementations 
+of the abstract class, providing progress management with an ini file (FileDataLink) or a remote server (HttpDataLink).  You can 
+configure which data link to use with the **dataLinkClassname** variable in the ini file.  If the dataLinkClassname variable is 
+not set, the mutator will default to using the FileDataLink implementation.
 
 ```ini
-dataSourceClassname=ServerAchievements.HttpDataSource
+dataLinkClassname=ServerAchievements.HttpDataLink
 ```
 
-If neither of the pre-canned solutions are suitable for your servers, you can create your own data source by implementing the DataSource 
+If neither of the pre-canned solutions are suitable for your servers, you can create your own data link by implementing the DataLink
 abstract class.
 
-### File Data Source
-The FileDataSource class saves achievement data to the **KFServerAchievementsState.ini** file, located in the config folder.  As 
-mentioned above, this is the default data source unless you specify otherwise.
+### File Data Link
+The FileDataLink class saves achievement data to the **KFServerAchievementsState.ini** file, located in the config folder.  As 
+mentioned above, this is the default data link unless you specify otherwise.
 
-### Http Data Source
-As the name suggest, the HttpDataSource class uses the HTTP protocol to communicate with a remote database.  You can configure the 
+### Http Data Link
+As the name suggest, the HttpDataLink class uses the HTTP protocol to communicate with a remote database.  You can configure the 
 hostname of the remote server by setting the **httpHostname** variable.
 
 ```ini
 # Use http://192.168.0.201:8000 as my remote data server
-[ServerAchievements.HttpDataSource]
+[ServerAchievements.HttpDataLink]
 httpHostname=192.168.0.201:8000
 ```
 
-You will need an HTTP server to handle data requests for this data source.
+You will need an HTTP server to handle data requests for this data link.
 
 # Progress Menu
 A custom menu is available for clients to view achievement progress in game.  Simply bind a key to the command *toggleAchievementMenu* 

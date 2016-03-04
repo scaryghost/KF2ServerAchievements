@@ -1,4 +1,4 @@
-class FileDataSource extends DataSource;
+class FileDataLink extends DataLink;
 
 function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<AchievementPack> packs) {
     local array<byte> objectState;

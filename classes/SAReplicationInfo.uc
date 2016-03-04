@@ -9,7 +9,7 @@ struct HealthWatcher {
 
 var array<HealthWatcher> damagedZeds;
 var array<class<AchievementPack> > achievementPackClasses;
-var DataSource dataSrc;
+var DataLink dataLnk;
 
 var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing, handledGameEnded;
 var private array<AchievementPack> achievementPacks;
@@ -45,7 +45,7 @@ simulated event Tick(float DeltaTime) {
                 addAchievementPack(Spawn(it, Owner));
             }
 
-            dataSrc.retrieveAchievementState(PlayerController(Owner).PlayerReplicationInfo.UniqueId, achievementPacks);
+            dataLnk.retrieveAchievementState(PlayerController(Owner).PlayerReplicationInfo.UniqueId, achievementPacks);
         }
         
         localController= GetALocalPlayerController();

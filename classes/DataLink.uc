@@ -1,7 +1,7 @@
 /**
- * Abstract class defining the 
+ * Abstract class providing a link to a data container
  */
-class DataSource extends Object
+class DataLink extends Object
     abstract;
 
 /**

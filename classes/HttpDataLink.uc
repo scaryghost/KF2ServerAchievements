@@ -1,4 +1,4 @@
-class HttpDataSource extends DataSource
+class HttpDataLink extends DataLink
     Config(ServerAchievements);
 
 var() config string httpHostname;
