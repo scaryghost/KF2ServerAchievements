@@ -16,7 +16,7 @@ function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<
 
         queryParts.Length= 0;
         queryParts.AddItem("action=get");
-        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ PathName(it.class));
+        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ it.attrId());
 
         JoinArray(queryParts, query, "&");
 
@@ -43,7 +43,7 @@ function saveAchievementState(const out UniqueNetId ownerSteamId, const out arra
 
         queryParts.Length= 0;
         queryParts.AddItem("action=save");
-        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ PathName(it.class));
+        queryParts.AddItem("key=serverachievements/" $ steamIdString $ "/" $ it.attrId());
         queryParts.AddItem("value=" $ byteArrayToHexString(objectState));
 
         JoinArray(queryParts, query, "&");
@@ -58,20 +58,20 @@ function saveAchievementState(const out UniqueNetId ownerSteamId, const out arra
     }
 }
 
-function saveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
+private function saveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
     if (!bDidSucceed) {
-        `Warn("Error saving achievement to http server '" $ httpHostname $ "'");
+        `Warn("Error saving achievement to http server '" $ httpHostname $ "'", true, GetPackageName());
     }
 }
 
-function retrieveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
+private function retrieveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
     local array<byte> objectState;
 
     if (bDidSucceed) {
         hexStringToByteArray(InHttpResponse.GetContentAsString(), objectState);
         pendingPacks[0].deserialize(objectState);
     } else {
-        `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'");
+        `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'", true, GetPackageName());
     }
     pendingPacks.Remove(0, 1);
 }

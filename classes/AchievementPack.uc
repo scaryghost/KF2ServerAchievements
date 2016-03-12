@@ -129,6 +129,10 @@ simulated function int numCompleted();
  * Get the name of the achievement pack
  */
 simulated function String attrName();
+/**
+ * Unique identifier for the achievement pack
+ */
+simulated function String attrId();
 
 defaultproperties
 {

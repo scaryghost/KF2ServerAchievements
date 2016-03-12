@@ -114,6 +114,10 @@ simulated function String attrName() {
     return packName;
 }
 
+simulated function String attrId() {
+    return Locs(PathName(self));
+}
+
 /**
  * Update the achievement state on the client side
  * @param index         Achievement index to update

@@ -9,7 +9,7 @@ function retrieveAchievementState(const out UniqueNetId ownerSteamId, out array<
     steamIdString= class'GameEngine'.static.GetOnlineSubsystem().UniqueNetIdToInt64(ownerSteamId);
     dataStore= new(None, steamIdString) class'LocalDataStore';
     foreach packs(it) {
-        objectState= dataStore.getValue(PathName(it.class));
+        objectState= dataStore.getValue(it.attrId());
         it.deserialize(objectState);
     }
 }
@@ -24,7 +24,7 @@ function saveAchievementState(const out UniqueNetId ownerSteamId, const out arra
     dataStore= new(None, steamIdString) class'LocalDataStore';
     foreach packs(it) {
         it.serialize(objectState);
-        dataStore.saveValue(PathName(it.class), objectState);
+        dataStore.saveValue(it.attrId(), objectState);
     }
 
     dataStore.SaveConfig();
