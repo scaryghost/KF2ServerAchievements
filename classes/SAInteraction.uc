@@ -37,7 +37,7 @@ var PlayerController owner;
 
 var private array<AchievementPack> ownerAchvPacks;
 var private IntPoint MousePosition;
-var private bool menuOpen, leftButtonPressed, rightButtonPressed, showHud;
+var private bool menuOpen, leftButtonPressed, rightButtonPressed, showHud, centerCursor;
 var private MobileMenuScene scene;
 var private Color DrawColor, CursorColor;
 var private Texture2D NotificationBackground, CursorTexture;
@@ -58,6 +58,12 @@ exec function toggleAchievementMenu() {
     mbPlayerInput= MobilePlayerInput(owner.PlayerInput);
     menuOpen= !menuOpen;
     if (menuOpen) {
+        if (centerCursor) {
+            MousePosition.X= owner.myHUD.SizeX / 2;
+            MousePosition.Y= owner.myHUD.SizeY / 2;
+            centerCursor= false;
+        }
+
         showHud= owner.myHUD.bShowHUD;
         owner.myHUD.bShowHUD= false;
         owner.IgnoreMoveInput(true);
@@ -102,16 +108,18 @@ function bool CheckBounds(MobileMenuObject menuObject) {
 function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime, optional bool bGamepad) {
     local MobileMenuObject it;
 
-    if (Key == 'MouseX') {
-        MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
-    } else if (Key == 'MouseY') {
-        MousePosition.Y = Clamp(MousePosition.Y - Delta, 0, owner.myHUD.SizeY);
-    }
+    if (menuOpen) {
+        if (Key == 'MouseX') {
+            MousePosition.X = Clamp(MousePosition.X + Delta, 0, owner.myHUD.SizeX);
+        } else if (Key == 'MouseY') {
+            MousePosition.Y = Clamp(MousePosition.Y - Delta, 0, owner.myHUD.SizeY);
+        }
 
-    if (menuOpen && leftButtonPressed) {
-        foreach scene.MenuObjects(it) {
-            if (CheckBounds(it)) {
-                it.OnTouch(Touch_Moved, MousePosition.X, MousePosition.Y, None, DeltaTime);
+        if (leftButtonPressed) {
+            foreach scene.MenuObjects(it) {
+                if (CheckBounds(it)) {
+                    it.OnTouch(Touch_Moved, MousePosition.X, MousePosition.Y, None, DeltaTime);
+                }
             }
         }
     }
@@ -307,4 +315,5 @@ defaultproperties
     newLineSeparator="|"
 
     menuOpen=false
+    centerCursor= true
 }
