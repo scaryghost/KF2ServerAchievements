@@ -50,7 +50,7 @@ If neither of the pre-canned solutions are suitable for your servers, you can cr
 abstract class.
 
 ### File Data Link
-The FileDataLink class saves achievement data to the **KFServerAchievementsState.ini** file, located in the config folder.  As 
+The FileDataLink class saves achievement data to the **KFServerAchievementsDataStore.ini** file, located in the config folder.  As 
 mentioned above, this is the default data link unless you specify otherwise.
 
 ### Http Data Link
