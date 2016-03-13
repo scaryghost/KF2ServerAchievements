@@ -60,7 +60,9 @@ function saveAchievementState(const out UniqueNetId ownerSteamId, const out arra
 
 private function saveRequestComplete(HttpRequestInterface OriginalRequest, HttpResponseInterface InHttpResponse, bool bDidSucceed) {
     if (!bDidSucceed) {
-        `Warn("Error saving achievement to http server '" $ httpHostname $ "'", true, GetPackageName());
+        //<TODO Use FileDataLink to save data locally if server is unreacable
+        `Warn("Error saving achievement to http server '" $ httpHostname $ "'.  Response code= " $ InHttpResponse.GetResponseCode(), true, GetPackageName());
+        `Warn(InHttpResponse.GetContentAsString(), true, GetPackageName());
     }
 }
 
@@ -71,7 +73,9 @@ private function retrieveRequestComplete(HttpRequestInterface OriginalRequest, H
         hexStringToByteArray(InHttpResponse.GetContentAsString(), objectState);
         pendingPacks[0].deserialize(objectState);
     } else {
-        `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'", true, GetPackageName());
+        ///<TODO Read data from local file if retrieve request fail
+        `Warn("Error retriving achievement data from http server '" $ httpHostname $ "'.  Response code= " $ InHttpResponse.GetResponseCode(), true, GetPackageName());
+        `Warn(InHttpResponse.GetContentAsString(), true, GetPackageName());
     }
     pendingPacks.Remove(0, 1);
 }

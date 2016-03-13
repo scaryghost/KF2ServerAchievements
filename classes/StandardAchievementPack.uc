@@ -115,7 +115,7 @@ simulated function String attrName() {
 }
 
 simulated function String attrId() {
-    return Locs(PathName(self));
+    return Locs(PathName(self.class));
 }
 
 /**
