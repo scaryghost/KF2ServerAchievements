@@ -31,6 +31,8 @@ function registerHandlers(GlobalEventDispatcher globalDispatcher, PlayerEventDis
     playerDispatcher.stoppedFiring.AddItem(stoppedFiringWeapon);
     playerDispatcher.pickedUpItem.AddItem(pickedUpItem);
     playerDispatcher.monsterDamaged.AddItem(damagedMonster);
+    playerDispatcher.playerDied.AddItem(died);
+    playerDispatcher.monsterDied.AddItem(killedMonster);
 }
 
 private function matchEnded(const out MatchInfo info) {
@@ -57,13 +59,13 @@ private function stoppedFiringWeapon(Weapon currentWeapon) {
     checkBloodyRussians(currentWeapon);
 }
 
-private function died(Controller killer, class<DamageType> damageType) {
+private function died(Pawn killed, Controller killer, class<DamageType> damageType) {
     if (damageType == class'KFDT_Falling') {
         addProgress(WATCH_YOUR_STEP, 1);
     }
 }
 
-private function killedMonster(Pawn target, class<DamageType> damageType) {
+private function killedMonster(Pawn target, Controller killer, class<DamageType> damageType) {
     addProgress(EXPERIMENTIMILLICIDE, 1);
 
     if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
