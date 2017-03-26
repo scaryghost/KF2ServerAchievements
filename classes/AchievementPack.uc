@@ -20,29 +20,10 @@ struct Achievement {
 };
 
 /**
- * Enumeration of possible match outcomes
- */
-enum MatchResult {
-    SA_MR_UNKNOWN,          ///< Outcome unknown
-    SA_MR_WON,              ///< Match won
-    SA_MR_LOST              ///< Match lost
-};
-
-/**
- * Tuple holding properties of the current match
- */
-struct MatchInfo {
-    var string mapName;             ///< Map the match was played on
-    var byte difficulty;            ///< Difficulty of the match
-    var byte length;                ///< Game length
-    var MatchResult result;         ///< Result of the match
-};
-
-/**
  * Called when the match ends
  * @param info      Information about the match
  */
-event matchEnded(const out MatchInfo info);
+//event matchEnded(const out MatchInfo info);
 /**
  * Called when a wave begins
  * @param newWave   Wave number that started
@@ -93,7 +74,7 @@ event matchEnded(const out MatchInfo info);
  * @param damageType        Type of damage that hurt the specimen
  * @param headshot          True if attack was a headshot
  */
-event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
+//event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot);
 /**
  * Called when the player picks up an item
  * @param item              Item that is picked up

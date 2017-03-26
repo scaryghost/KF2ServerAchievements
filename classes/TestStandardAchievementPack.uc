@@ -1,4 +1,5 @@
-class TestStandardAchievementPack extends StandardAchievementPack;
+class TestStandardAchievementPack extends StandardAchievementPack
+    dependson(GlobalEventDispatcher);
 
 enum TestSapIndex {
     EXPERIMENTIMILLICIDE,
@@ -23,13 +24,16 @@ private function checkBloodyRussians(Weapon currentWeapon) {
 
 function registerHandlers(GlobalEventDispatcher globalDispatcher, PlayerEventDispatcher playerDispatcher) {
     globalDispatcher.started.AddItem(waveStarted);
+    globalDispatcher.ended.AddItem(matchEnded);
+
     playerDispatcher.tossed.AddItem(tossedGrenade);
     playerDispatcher.reloaded.AddItem(reloadedWeapon);
     playerDispatcher.stoppedFiring.AddItem(stoppedFiringWeapon);
     playerDispatcher.pickedUpItem.AddItem(pickedUpItem);
+    playerDispatcher.monsterDamaged.AddItem(damagedMonster);
 }
 
-function matchEnded(const out MatchInfo info) {
+private function matchEnded(const out MatchInfo info) {
     if (info.result == SA_MR_LOST && Locs(info.mapName) == "kf-burningparis") {
         achievementCompleted(MERDE);
     }
@@ -41,25 +45,25 @@ private function waveStarted(byte newWave, byte waveMax) {
     }
 }
 
-function tossedGrenade(class<KFProj_Grenade> grenadeClass) {
+private function tossedGrenade(class<KFProj_Grenade> grenadeClass) {
     addProgress(FIRE_IN_THE_HOLE, 1);
 }
 
-function reloadedWeapon(Weapon currentWeapon) {
+private function reloadedWeapon(Weapon currentWeapon) {
     achievements[BLOODY_RUSSIANS].progress= 0;
 }
 
-function stoppedFiringWeapon(Weapon currentWeapon) {
+private function stoppedFiringWeapon(Weapon currentWeapon) {
     checkBloodyRussians(currentWeapon);
 }
 
-function died(Controller killer, class<DamageType> damageType) {
+private function died(Controller killer, class<DamageType> damageType) {
     if (damageType == class'KFDT_Falling') {
         addProgress(WATCH_YOUR_STEP, 1);
     }
 }
 
-function killedMonster(Pawn target, class<DamageType> damageType) {
+private function killedMonster(Pawn target, class<DamageType> damageType) {
     addProgress(EXPERIMENTIMILLICIDE, 1);
 
     if (ClassIsChildOf(damageType, class'KFDT_Ballistic_AK12')) {
@@ -69,13 +73,13 @@ function killedMonster(Pawn target, class<DamageType> damageType) {
     }
 }
 
-function pickedUpItem(Actor item) {
+private function pickedUpItem(Actor item) {
     if (item.IsA('KFPickupFactory_Ammo')) {
         addProgress(AMMO_COLLECTOR, 1);
     }
 }
 
-function damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
+private function damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
     if (headshot && ClassIsChildOf(damageType, class'KFDT_Bludgeon')) {
         addProgress(NOT_THE_FACE, 1);
     }

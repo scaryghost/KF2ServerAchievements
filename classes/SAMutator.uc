@@ -52,6 +52,25 @@ function PostBeginPlay() {
     globalDispatcher = new class'GlobalEventDispatcher';
 }
 
+simulated event Tick(float DeltaTime) {
+    local MatchInfo info;
+
+    if (WorldInfo.Game.GameReplicationInfo.bMatchIsOver) {
+        info.mapName= WorldInfo.GetMapName(true);
+        info.difficulty= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameDifficulty;
+        info.length= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameLength;
+        if (WorldInfo.Game.IsA('KFGameInfo')) {
+            info.result= KFGameInfo(WorldInfo.Game).GetLivingPlayerCount() <= 0 ? SA_MR_LOST : SA_MR_WON;
+        } else {
+            info.result= SA_MR_UNKNOWN;
+        }
+
+        globalDispatcher.notifyMatchEnded(info);
+
+        Disable('Tick');
+    }
+}
+
 function bool CheckReplacement(Actor Other) {
     local PlayerReplicationInfo pri;
     local SAReplicationInfo saRepInfo;

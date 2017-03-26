@@ -13,7 +13,7 @@ var DataLink dataLnk;
 var PlayerEventDispatcher playerDispatcher;
 var GlobalEventDispatcher globalDispatcher;
 
-var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing, handledGameEnded;
+var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing;
 var private array<AchievementPack> achievementPacks;
 
 event Destroyed() {
@@ -32,7 +32,6 @@ event PostBeginPlay() {
 }
 
 simulated event Tick(float DeltaTime) {
-    local MatchInfo info;
     local KFPawn ownerPawn;
     local bool weaponIsFiring, weaponIsReloading, weaponIsSwinging, tossingFrag;
     local class<AchievementPack> it;
@@ -114,29 +113,11 @@ simulated event Tick(float DeltaTime) {
                 signalFragToss= false;
             }
         }
-
-        if (!handledGameEnded && WorldInfo.Game.GameReplicationInfo.bMatchIsOver) {
-            handledGameEnded= true;
-            info.mapName= WorldInfo.GetMapName(true);
-            info.difficulty= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameDifficulty;
-            info.length= KFGameReplicationInfo(WorldInfo.Game.GameReplicationInfo).GameLength;
-
-            if (WorldInfo.Game.IsA('KFGameInfo')) {
-                info.result= KFGameInfo(WorldInfo.Game).GetLivingPlayerCount() <= 0 ? SA_MR_LOST : SA_MR_WON;
-            } else {
-                info.result= SA_MR_UNKNOWN;
-            }
-
-            foreach achievementPacks(pack) {
-                pack.matchEnded(info);
-            }
-        }
     }
 }
 
 function checkMonsterHealth() {
     local int i, end, damage;
-    local AchievementPack it;
     local bool headshot;
 
     end= damagedZeds.Length;
@@ -144,9 +125,7 @@ function checkMonsterHealth() {
         if (damagedZeds[i].Health != damagedZeds[i].monster.Health) {
             headshot= damagedZeds[i].monster.HitZones[HZI_HEAD].GoreHealth != damagedZeds[i].headHealth;
             damage= damagedZeds[i].Health - damagedZeds[i].monster.Health;
-            foreach achievementPacks(it) {
-                it.damagedMonster(damage, damagedZeds[i].monster, damagedZeds[i].damageTypeClass, headshot);
-            }
+            playerDispatcher.notifyMonsterDamaged(damage, damagedZeds[i].monster, damagedZeds[i].damageTypeClass, headshot);
 
             damagedZeds.Remove(i, 1);
             end--;

@@ -16,11 +16,13 @@ var array<delegate<GrenadeEvent> > tossed;
 var array<delegate<WeaponEvent> > reloaded, fired, stoppedFiring, swung;
 var array<delegate<DeathEvent> > playerDied, monsterDied;
 var array<delegate<ActorEvent> > pickedUpItem;
+var array<delegate<DamageEvent> > monsterDamaged;
 
 delegate GrenadeEvent(class<KFProj_Grenade> grenadeClass);
 delegate DeathEvent(Pawn killed, Controller killer, class<DamageType> dmgType);
 delegate WeaponEvent(Weapon weapon);
 delegate ActorEvent(Actor actor);
+delegate DamageEvent(int damage, Pawn target, class<DamageType> damageType, bool headshot);
 
 function notifyGrenadeTossed(class<KFProj_Grenade> grenadeClass) {
     local delegate<GrenadeEvent> it;
@@ -77,5 +79,13 @@ function notifyItemPickup(Actor item) {
 
     foreach pickedUpItem(it) {
         it(item);
+    }
+}
+
+function notifyMonsterDamaged(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
+    local delegate<DamageEvent> it;
+
+    foreach monsterDamaged(it) {
+        it(damage, target, damageType, headshot);
     }
 }
