@@ -44,7 +44,9 @@ simulated event Tick(float DeltaTime) {
     if (!initialized) {
         if (Role == ROLE_Authority) {
             foreach achievementPackClasses(it) {
-                addAchievementPack(Spawn(it, Owner));
+                pack = Spawn(it, Owner);
+                pack.registerHandlers(globalDispatcher, playerDispatcher);
+                addAchievementPack(pack);
             }
 
             dataLnk.retrieveAchievementState(PlayerController(Owner).PlayerReplicationInfo.UniqueId, achievementPacks);
@@ -54,7 +56,6 @@ simulated event Tick(float DeltaTime) {
         if (localController != none) {
             SetOwner(localController);
             foreach DynamicActors(class'AchievementPack', pack) {
-                pack.registerHandlers(globalDispatcher, playerDispatcher);
                 addAchievementPack(pack);
             }
 
@@ -81,23 +82,17 @@ simulated event Tick(float DeltaTime) {
             weaponIsFiring= weaponState == 'WeaponSingleFiring' || weaponState == 'WeaponFiring' ||
                     weaponState == 'WeaponBurstFiring' || weaponState == 'SprayingFire';
             if (!signalFire && weaponIsFiring) {
-                foreach achievementPacks(pack) {
-                    pack.firedWeapon(ownerPawn.Weapon);
-                }
+                playerDispatcher.notifyWeaponEvent(playerDispatcher.WeaponEventType.FIRED, ownerPawn.Weapon);
                 signalFire= true;
             } else if (signalFire && !weaponIsFiring) {
-                foreach achievementPacks(pack) {
-                    pack.stoppedFiringWeapon(ownerPawn.Weapon);
-                }
+                playerDispatcher.notifyWeaponEvent(playerDispatcher.WeaponEventType.STOPPED_FIRING, ownerPawn.Weapon);
                 signalFire= false;
             }
 
             weaponIsSwinging= weaponState == 'MeleeAttackBasic' || weaponState == 'MeleeChainAttacking' ||
                     weaponState == 'MeleeHeavyAttacking';
             if (!signalSwing && weaponIsSwinging) {
-                foreach achievementPacks(pack) {
-                    pack.swungWeapon(ownerPawn.Weapon);
-                }
+                playerDispatcher.notifyWeaponEvent(playerDispatcher.WeaponEventType.SWUNG, ownerPawn.Weapon);
                 signalSwing= true;
             } else if (signalSwing && !weaponIsSwinging) {
                 signalSwing= false;
@@ -105,9 +100,7 @@ simulated event Tick(float DeltaTime) {
 
             weaponIsReloading= ownerPawn.Weapon.IsInState('Reloading');
             if (!signalReload && weaponIsReloading) {
-                foreach achievementPacks(pack) {
-                    pack.reloadedWeapon(ownerPawn.Weapon);
-                }
+                playerDispatcher.notifyWeaponEvent(playerDispatcher.WeaponEventType.RELOADED, ownerPawn.Weapon);
                 signalReload= true;
             } else if (signalReload && !weaponIsReloading) {
                 signalReload= false;
@@ -115,9 +108,7 @@ simulated event Tick(float DeltaTime) {
 
             tossingFrag= ownerPawn.Weapon.IsInState('GrenadeFiring');
             if (!signalFragToss && tossingFrag) {
-                foreach achievementPacks(pack) {
-                    pack.tossedGrenade(ownerPawn.GetPerk().GetGrenadeClass());
-                }
+                playerDispatcher.notifyGrenadeTossed(ownerPawn.GetPerk().GetGrenadeClass());
                 signalFragToss= true;
             } else if (signalFragToss && !tossingFrag) {
                 signalFragToss= false;

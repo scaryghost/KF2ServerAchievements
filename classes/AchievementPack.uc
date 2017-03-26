@@ -53,39 +53,39 @@ event matchEnded(const out MatchInfo info);
  * Called when a grenade is thrown
  * @param grenadeClass      Class of the thrown grenade
  */
-event tossedGrenade(class<KFProj_Grenade> grenadeClass);
+//event tossedGrenade(class<KFProj_Grenade> grenadeClass);
 /**
  * Called when a gun begins its reloading animation
  * @param currentWeapon     Weapon being reloaded
  */
-event reloadedWeapon(Weapon currentWeapon);
+//event reloadedWeapon(Weapon currentWeapon);
 /**
  * Called when a gun begins its firing animation
  * @param currentWeapon     Weapon being fired
  */
-event firedWeapon(Weapon currentWeapon);
+//event firedWeapon(Weapon currentWeapon);
 /**
  * Called when a gun stops its firing animation
  * @param currentWeapon     Weapon that ceases firing
  */
-event stoppedFiringWeapon(Weapon currentWeapon);
+//event stoppedFiringWeapon(Weapon currentWeapon);
 /**
  * Called when a weapon begins its swinging animation
  * @param currentWeapon     Weapon that is swinging
  */
-event swungWeapon(Weapon currentWeapon);
+//event swungWeapon(Weapon currentWeapon);
 /**
  * Called when the player dies
  * @param killer            Controller of the killer
  * @param damageType        Type of damage that killed the player
  */
-event died(Controller killer, class<DamageType> damageType);
+//event died(Controller killer, class<DamageType> damageType);
 /**
  * Called when the player kills a specimen
  * @param target            Specimen the player killed
  * @param damageType        Type of damage that killed the specimen
  */
-event killedMonster(Pawn target, class<DamageType> damageType);
+//event killedMonster(Pawn target, class<DamageType> damageType);
 /**
  * Called when the player damages a specimen
  * @param damage            Amount of damage done
@@ -98,7 +98,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
  * Called when the player picks up an item
  * @param item              Item that is picked up
  */
-event pickedUpItem(Actor item);
+//event pickedUpItem(Actor item);
 
 function registerHandlers(GlobalEventDispatcher globalDispatcher, PlayerEventDispatcher playerDispatcher);
 /**
