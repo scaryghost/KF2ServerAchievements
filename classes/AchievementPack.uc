@@ -48,7 +48,7 @@ event matchEnded(const out MatchInfo info);
  * @param newWave   Wave number that started
  * @param waveMax   Maximum number of waves in the game
  */
-event waveStarted(byte newWave, byte waveMax);
+//event waveStarted(byte newWave, byte waveMax);
 /**
  * Called when a grenade is thrown
  * @param grenadeClass      Class of the thrown grenade
@@ -100,6 +100,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
  */
 event pickedUpItem(Actor item);
 
+function registerHandlers(GlobalEventDispatcher globalDispatcher, PlayerEventDispatcher playerDispatcher);
 /**
  * Convert the achievement pack to a byte array to be saved to disk
  * @param objectState           Array to write the bytes to

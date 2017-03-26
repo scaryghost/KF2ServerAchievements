@@ -10,6 +10,8 @@ struct HealthWatcher {
 var array<HealthWatcher> damagedZeds;
 var array<class<AchievementPack> > achievementPackClasses;
 var DataLink dataLnk;
+var PlayerEventDispatcher playerDispatcher;
+var GlobalEventDispatcher globalDispatcher;
 
 var private bool initialized, signalFire, signalReload, signalFragToss, signalSwing, handledGameEnded;
 var private array<AchievementPack> achievementPacks;
@@ -52,6 +54,7 @@ simulated event Tick(float DeltaTime) {
         if (localController != none) {
             SetOwner(localController);
             foreach DynamicActors(class'AchievementPack', pack) {
+                pack.registerHandlers(globalDispatcher, playerDispatcher);
                 addAchievementPack(pack);
             }
 
