@@ -309,7 +309,7 @@ defaultproperties
     OnReceivedNativeInputAxis=axisEvent
     OnReceivedNativeInputKey=keyEvent
 
-    CursorTexture=Texture2D'UI_Managers.LoaderManager_SWF_I11'
+    CursorTexture=Texture2D'UI_Managers.LoaderManager_SWF_I13'
     CursorColor=(R=255,G=255,B=255,A=255)
     DrawColor=(R=255,G=255,B=255,A=255)
     newLineSeparator="|"
