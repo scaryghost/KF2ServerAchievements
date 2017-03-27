@@ -31,8 +31,9 @@ struct PopupMessage {
     var Texture2D image;        ///< Image to display with the message
 };
 
-/** Where to display popup messagse on the screen, defaults to bottom and center */
+/** Where to display popup messages on the screen, defaults to bottom and center */
 var globalconfig PopupPosition msgPosition;
+var globalconfig name 
 var PlayerController owner;
 
 var private array<AchievementPack> ownerAchvPacks;
@@ -130,6 +131,11 @@ function bool axisEvent(int ControllerId, name Key, float Delta, float DeltaTime
 function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f,
         optional bool bGamepad) {
     local MobileMenuObject it;
+
+    if (Key == 'Escape' && EventType == IE_Pressed && menuOpen) {
+        toggleAchievementMenu();
+        return true;
+    }
 
     leftButtonPressed= (Key == 'LeftMouseButton' && EventType == IE_Pressed);
     rightButtonPressed= (Key == 'RightMouseButton' && EventType == IE_Pressed);
