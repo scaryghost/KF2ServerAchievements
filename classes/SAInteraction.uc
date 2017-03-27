@@ -33,7 +33,8 @@ struct PopupMessage {
 
 /** Where to display popup messages on the screen, defaults to bottom and center */
 var globalconfig PopupPosition msgPosition;
-var globalconfig name 
+/** Key that opens the achievement menu */
+var globalconfig name menuToggleKey;
 var PlayerController owner;
 
 var private array<AchievementPack> ownerAchvPacks;
@@ -132,7 +133,8 @@ function bool keyEvent(int ControllerId, name Key, EInputEvent EventType, option
         optional bool bGamepad) {
     local MobileMenuObject it;
 
-    if (Key == 'Escape' && EventType == IE_Pressed && menuOpen) {
+    if ((Key == menuToggleKey && EventType == IE_Pressed) || 
+            (Key == 'Escape' && EventType == IE_Pressed && menuOpen)) {
         toggleAchievementMenu();
         return true;
     }
