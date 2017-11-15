@@ -75,7 +75,9 @@ function bool CheckReplacement(Actor Other) {
     local PlayerReplicationInfo pri;
     local SAReplicationInfo saRepInfo;
 
-    if (PlayerReplicationInfo(Other) != none && Other.Owner != None && Other.Owner.IsA('PlayerController') && 
+    if (KFPlayerController(Other) != None) {
+        KFPlayerController(Other).MatchStatsClass = class'ServerAchievements.EphemeralMatchStats';
+    } else if (PlayerReplicationInfo(Other) != none && Other.Owner != None && Other.Owner.IsA('PlayerController') && 
             PlayerController(Other.Owner).bIsPlayer) {
         pri= PlayerReplicationInfo(Other);
 
@@ -86,25 +88,6 @@ function bool CheckReplacement(Actor Other) {
         saRepInfo.achievementPackClasses= loadedAchievementPacks;
     }
     return super.CheckReplacement(Other);
-}
-
-function NetDamage(int OriginalDamage, out int Damage, Pawn Injured, Controller InstigatedBy, 
-        vector HitLocation, out vector Momentum, class<DamageType> DamageType, Actor DamageCauser) {
-    local SAReplicationInfo saRepInfo;
-    local HealthWatcher watcher;
-
-    super.NetDamage(OriginalDamage, Damage, Injured, instigatedBy, HitLocation, Momentum, DamageType, 
-            DamageCauser);
-    if (Injured.IsA('KFPawn_Monster')) {
-        saRepInfo= class'SAReplicationInfo'.static.findSAri(instigatedBy);
-        if (saRepInfo != None) {
-            watcher.health= Injured.Health;
-            watcher.monster= KFPawn_Monster(Injured);
-            watcher.headHealth= watcher.monster.HitZones[HZI_HEAD].GoreHealth;
-            watcher.damageTypeClass= DamageType;
-            saRepInfo.damagedZeds.AddItem(watcher);
-        }
-    }
 }
 
 function bool OverridePickupQuery(Pawn Other, class<Inventory> ItemClass, Actor Pickup, out byte bAllowPickup) {

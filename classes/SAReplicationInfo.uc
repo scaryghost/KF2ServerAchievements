@@ -7,7 +7,6 @@ struct HealthWatcher {
     var KFPawn_Monster monster;
 };
 
-var array<HealthWatcher> damagedZeds;
 var array<class<AchievementPack> > achievementPackClasses;
 var DataLink dataLnk;
 var PlayerEventDispatcher playerDispatcher;
@@ -25,10 +24,6 @@ event Destroyed() {
     achievementPacks.Length= 0;
 
     super.Destroyed();
-}
-
-event PostBeginPlay() {
-    SetTimer(0.5, true, 'checkMonsterHealth');
 }
 
 simulated event Tick(float DeltaTime) {
@@ -116,25 +111,6 @@ simulated event Tick(float DeltaTime) {
     }
 }
 
-function checkMonsterHealth() {
-    local int i, end, damage;
-    local bool headshot;
-
-    end= damagedZeds.Length;
-    while(i < end) {
-        if (damagedZeds[i].Health != damagedZeds[i].monster.Health) {
-            headshot= damagedZeds[i].monster.HitZones[HZI_HEAD].GoreHealth != damagedZeds[i].headHealth;
-            damage= damagedZeds[i].Health - damagedZeds[i].monster.Health;
-            playerDispatcher.notifyMonsterDamaged(damage, damagedZeds[i].monster, damagedZeds[i].damageTypeClass, headshot);
-
-            damagedZeds.Remove(i, 1);
-            end--;
-        } else {
-            i++;
-        }
-    }
-}
-
 simulated function addAchievementPack(AchievementPack pack) {
     local int i;
     
@@ -152,14 +128,14 @@ simulated function getAchievementPacks(out array<AchievementPack> packs) {
     }
 }
 
-static function SAReplicationInfo findSAri(Controller saRepOwner) {
+static function SAReplicationInfo findSAri(Controller RepInfoOwner) {
     local SAReplicationInfo repInfo;
 
-    if (saRepOwner == none)
+    if (RepInfoOwner == none)
         return none;
 
-    foreach saRepOwner.DynamicActors(class'SAReplicationInfo', repInfo)
-        if (repInfo.Owner == saRepOwner) {
+    foreach RepInfoOwner.DynamicActors(class'SAReplicationInfo', repInfo)
+        if (repInfo.Owner == RepInfoOwner) {
             return repInfo;
         }
  
